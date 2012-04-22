@@ -27,15 +27,18 @@ public class gif2boot {
 	static String version = "0.2a";
 	
 	// desired output parameters
-	static int resizeWidth = 320;
-	static int resizeHeight = 480;
+	static int resizeWidth = 1280;
+	static int resizeHeight = 800;
+	//static int resizeWidth = 320;
+	//static int resizeHeight = 480;
 	static int framerate = 10; // default framerate, changes later
 	static boolean centerFrame = false;
+	static boolean tablet = false; // not needed
 	
 	public static void main(String[] args) throws Exception {
 		
 		//String[] args = {"--centerframe", "twist.gif"};
-		//String[] args = {"twist.gif"};
+		//String[] args = {"test.gif"};
 		
 		// parse arguments
 		if (args.length == 0) {
@@ -117,7 +120,7 @@ public class gif2boot {
 			if (centerFrame) {
 				combined = centerFrame(combined);
 			} // OTHERWISE, rotate frame if image is wider than it is high (this way we don't squash it on resize)		
-			else if (combined.getWidth() > combined.getHeight()) {
+			else if (combined.getWidth() > combined.getHeight() && !tablet) {
 				combined = rotate270(combined);
 			}
 
