@@ -19,6 +19,9 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
 import javax.swing.JProgressBar;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
 
 public class gif2bootGUI extends JFrame {
 
@@ -44,6 +47,7 @@ public class gif2bootGUI extends JFrame {
 	 * Create the frame.
 	 */
 	public gif2bootGUI() {
+		
 		setTitle("Gif2Boot v" + VERSION);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 500);
@@ -51,6 +55,30 @@ public class gif2bootGUI extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
+		
+		//MENU BAR
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		JMenuItem mntmExit = new JMenuItem("Exit");
+		mntmExit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+		mnFile.add(mntmExit);
+		JMenu mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);
+		JMenuItem mntmAbout = new JMenuItem("About");
+		mntmAbout.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Gif2Boot v" + VERSION	+ " is a utility that " +
+								"converts any animated GIF\ninto a bootanimation.zip for use on android phones.");
+            }
+        });
+		mnHelp.add(mntmAbout);
+				
 		
 		// LOAD PANEL
 		JPanel loadPanel = new JPanel();
