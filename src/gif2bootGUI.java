@@ -57,12 +57,13 @@ public class gif2bootGUI extends JFrame {
 		loadPanel.setBorder(new TitledBorder("Load Animated GIF"));
 		filenameField = new JTextField();
 		filenameField.setColumns(10);
-		JButton btnBrowse = new JButton("Browse");
+		final JButton btnBrowse = new JButton("Browse");
 		btnBrowse.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("BROWSE");
                 JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new File(filenameField.getText()));
+                //fileChooser.setCurrentDirectory(new File(filenameField.getText()));
+                fileChooser.setCurrentDirectory(new File("."));
                 int returnVal = fileChooser.showOpenDialog(new JFrame());
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                 	File file = fileChooser.getSelectedFile();
@@ -94,12 +95,11 @@ public class gif2bootGUI extends JFrame {
 		// CREATE PANEL
 		JPanel createPanel = new JPanel();
 		createPanel.setBorder(new TitledBorder(null, "Create Boot Animation", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		final JLabel progressLabel = new JLabel("");
 		final JProgressBar progressBar = new JProgressBar();
-		JButton btnCreate = new JButton("Create");
+		final JButton btnCreate = new JButton("Create");
 		btnCreate.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                
-                
                 
                 new Thread(
                         new Runnable() {
@@ -110,7 +110,14 @@ public class gif2bootGUI extends JFrame {
                                 int y = Integer.parseInt(dim[1]);
                                 boolean isCenterFrame = chckbxCenterFrame.isSelected();
                                 
-                                int status = backend.createBootZip(new File(filenameField.getText()), new Dimension(x, y), isCenterFrame, progressBar);
+                                btnBrowse.setEnabled(false);
+                                filenameField.setEnabled(false);
+                                comboBoxResolution.setEnabled(false);
+                                chckbxCenterFrame.setEnabled(false);
+                                btnCreate.setEnabled(false);
+                                
+                                
+                                int status = backend.createBootZip(new File(filenameField.getText()), new Dimension(x, y), isCenterFrame, progressBar, progressLabel);
                                 
                 				switch (status) {
                 				case 1:
@@ -125,11 +132,15 @@ public class gif2bootGUI extends JFrame {
                 				default:
                 					JOptionPane.showMessageDialog(new JFrame(), "Done.");
                 				}
+                				
+                				btnBrowse.setEnabled(true);
+                                filenameField.setEnabled(true);
+                                comboBoxResolution.setEnabled(true);
+                                chckbxCenterFrame.setEnabled(true);
+                                btnCreate.setEnabled(true);
+                				
                             }
                         }).start();
-                
-                
-                
 				
             }
         });
@@ -163,10 +174,10 @@ public class gif2bootGUI extends JFrame {
 					.addComponent(loadPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addComponent(optionsPanel, GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
-						.addComponent(previewPanel, GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(createPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(optionsPanel, GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
+						.addComponent(previewPanel, GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(createPanel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap())
 		);
 		
@@ -198,21 +209,26 @@ public class gif2bootGUI extends JFrame {
 			
 		GroupLayout gl_createPanel = new GroupLayout(createPanel);
 		gl_createPanel.setHorizontalGroup(
-			gl_createPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_createPanel.createSequentialGroup()
+			gl_createPanel.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_createPanel.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
-					.addGap(18)
+					.addComponent(progressLabel)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(progressBar, GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btnCreate)
 					.addContainerGap())
 		);
 		gl_createPanel.setVerticalGroup(
 			gl_createPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_createPanel.createSequentialGroup()
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addGroup(gl_createPanel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnCreate))
+				.addGroup(gl_createPanel.createSequentialGroup()
+					.addGroup(gl_createPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(btnCreate, GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE)
+						.addGroup(gl_createPanel.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(gl_createPanel.createParallelGroup(Alignment.TRAILING)
+								.addComponent(progressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(progressLabel))))
 					.addContainerGap())
 		);
 		createPanel.setLayout(gl_createPanel);

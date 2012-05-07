@@ -22,6 +22,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageInputStream;
+import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
@@ -30,7 +31,7 @@ import org.apache.xmlgraphics.image.codec.png.PNGImageEncoder;
 
 public class backend {
 
-	public static int createBootZip(File file, Dimension dim, boolean centerFrame, final JProgressBar progressBar) {
+	public static int createBootZip(File file, Dimension dim, boolean centerFrame, final JProgressBar progressBar, final JLabel progressLabel) {
 		
 		int framerate = 10; //default to initialize with, will change later
 		
@@ -85,13 +86,13 @@ public class backend {
 			}
 			
 			System.out.print("Processing frame " + (i+1) + "... ");
-			progressBar.setValue( ((i+1)/numImages) * 100 );
-//			final int progress = ((i+1)/numImages) * 100;
-//			SwingUtilities.invokeLater(new Runnable() {
-//			    public void run() {
-//			    	progressBar.setValue(progress);
-//			    }
-//			  });
+			final int progress = (int)( (double)(i+1) / (double)numImages * 100);
+			SwingUtilities.invokeLater(new Runnable() {
+			    public void run() {
+			    	progressLabel.setText(progress + "%");
+			    	progressBar.setValue(progress);
+			    }
+			  });
 
 			// get top/left position for current frame
 			IIOMetadataNode imgDescr = (IIOMetadataNode) imgRootNode.getElementsByTagName("ImageDescriptor").item(0);
@@ -162,6 +163,12 @@ public class backend {
 		
 		System.out.println("Complete.");
 		System.out.println("\nTo use the animation, place bootanimation.zip in the /data/local/ directory on your phone.");
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+		    	progressLabel.setText("");
+		    	progressBar.setValue(0);
+		    }
+		  });
 		return 0;
 		
 	}
