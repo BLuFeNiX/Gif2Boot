@@ -27,17 +27,15 @@ public class gif2boot {
 	static String version = "0.2a";
 	
 	// desired output parameters
-	static int resizeWidth = 1280;
-	static int resizeHeight = 800;
-	//static int resizeWidth = 320;
-	//static int resizeHeight = 480;
+	static int resizeWidth = 320;
+	static int resizeHeight = 480;
 	static int framerate = 10; // default framerate, changes later
 	static boolean centerFrame = false;
 	static boolean tablet = false; // not needed
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args1) throws Exception {
 		
-		//String[] args = {"--centerframe", "twist.gif"};
+		String[] args = {"--centerframe", "twist.gif"};
 		//String[] args = {"test.gif"};
 		
 		// parse arguments
@@ -59,7 +57,7 @@ public class gif2boot {
 		// load gif
 		File input = new File(args[args.length-1]);	// or Object input = new FileInputStream("animated.gif");
 		if (!input.exists()) {
-           System.err.println("\"" + input.getName() + "\" does not exist, please check the path and try again.");
+           System.err.println("\"" + input.getName() + "\" does not exist, please check the path and try again.\n");
            printUsage();
            System.exit(-2);
         }
