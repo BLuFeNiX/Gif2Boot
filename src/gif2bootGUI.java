@@ -124,7 +124,7 @@ public class gif2bootGUI extends JFrame {
                 					JOptionPane.showMessageDialog(new JFrame(), "The specified GIF file was not found, please check the path and try again.");
                 					break;
                 				case 2:
-                					JOptionPane.showMessageDialog(new JFrame(), "No image reader was found. Please report this to the developer.");
+                					JOptionPane.showMessageDialog(new JFrame(), "No image reader was found. Are you sure you selected an animated GIF?");
                 					break;
                 				case 3:
                 					JOptionPane.showMessageDialog(new JFrame(), "I/O error. Do you have sufficient permissions for the filesystem?");
