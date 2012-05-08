@@ -78,6 +78,16 @@ public class gif2bootGUI extends JFrame {
             }
         });
 		mnHelp.add(mntmAbout);
+		JMenuItem mntmFlashBootAnimation = new JMenuItem("Flash Boot Animation");
+		mntmFlashBootAnimation.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	new Thread( new Runnable() { public void run() {
+            		backend.flashBootAnimation();
+            	}
+            	}).start();
+            }
+        });
+		mnHelp.add(mntmFlashBootAnimation);
 				
 		
 		// LOAD PANEL

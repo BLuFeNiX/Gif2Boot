@@ -325,11 +325,24 @@ public class backend {
 
 	public static int flashBootAnimation() {
 		
+		// WINDOWS - BROKEN
+//		String path = new File("").getAbsolutePath();
+//		System.out.println("STEP 0");
+//		execute("taskkill /f /IM adb.exe"); // kill adb ONLY if it's not being run as administrator
+//		System.out.println("STEP 1");
+//		execute(path + "\\ADB\\adb.exe start-server");
+//		System.out.println("STEP 2");
+//		execute("\\ADB\\adb.exe wait-for-device");
+//		System.out.println("STEP 3");
+//		execute("\\ADB\\adb.exe push bootanimation.zip /data/local/");
+		
+		//LINUX
 		String path = new File("").getAbsolutePath();
 		execute("killall adblinux");
 		execute("killall adb");
 		execute("gksudo --description gksudo.txt " + path + "/ADB/adblinux devices");
 		execute("gksudo --description gksudo.txt " + path + "/ADB/adblinux push bootanimation.zip /data/local/");
+		System.out.println("DONE.");
 		return 0;
 
 	}
