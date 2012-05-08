@@ -10,8 +10,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -127,8 +130,12 @@ public class backend {
 			// resize frame to fit screen
 			combined = resizeToScreen(combined, (int)dim.getWidth(), (int)dim.getHeight());
 
-			// create new directory for images
+			// clean up old files and create new directory for images
 			if (i == 0) {
+				try {
+					delete(new File("part0"));
+					delete(new File("desc.txt"));
+				} catch (IOException e) { return 3; }
 				new File("part0/").mkdirs();
 			}
 			
@@ -206,7 +213,7 @@ public class backend {
 		try {
 			PrintWriter out = new PrintWriter(new FileWriter("desc.txt"));
 			out.println(width + " " + height + " " + framerate);
-			out.println("p 4 0 part0");
+			out.println("p 20 0 part0");
 			out.close();
 		} catch (IOException e){
 			e.printStackTrace();
@@ -311,6 +318,43 @@ public class backend {
 			//if file, then delete it
 			file.delete();
 		}
+	}
+
+
+
+
+	public static int flashBootAnimation() {
+		
+		String path = new File("").getAbsolutePath();
+		execute("killall adblinux");
+		execute("killall adb");
+		execute("gksudo --description gksudo.txt " + path + "/ADB/adblinux devices");
+		execute("gksudo --description gksudo.txt " + path + "/ADB/adblinux push bootanimation.zip /data/local/");
+		return 0;
+
+	}
+
+
+	private static String execute(String command) {
+		String output = "";
+		try {
+			Process proc = Runtime.getRuntime().exec(command);
+			InputStream in = proc.getInputStream();
+			InputStream err = proc.getErrorStream();
+			
+			Scanner scin = new Scanner(in);
+			while (scin.hasNext()) {
+				output += scin.useDelimiter("\\A").next();
+			}
+			
+			Scanner scerr = new Scanner(err);
+			while (scerr.hasNext()) {
+				output += scerr.useDelimiter("\\A").next();
+			}			
+			System.out.println(output);
+		} catch (IOException e) { e.printStackTrace(); }
+		
+		return output;
 	}
 	
 	

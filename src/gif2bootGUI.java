@@ -132,6 +132,7 @@ public class gif2bootGUI extends JFrame {
                 new Thread(
                         new Runnable() {
                             public void run() {
+                            	
                             	String temp = (String) comboBoxResolution.getSelectedItem();
                                 String[] dim = temp.split("x");
                                 int x = Integer.parseInt(dim[0]);
@@ -158,7 +159,12 @@ public class gif2bootGUI extends JFrame {
                 					JOptionPane.showMessageDialog(new JFrame(), "I/O error. Do you have sufficient permissions for the filesystem?");
                 					break;
                 				default:
-                					JOptionPane.showMessageDialog(new JFrame(), "Done.");
+                					//JOptionPane.showMessageDialog(new JFrame(), "Done.");
+                					int reply = JOptionPane.showConfirmDialog(null, "Done. Transfer boot animation to phone?", "Success", JOptionPane.YES_NO_OPTION);
+                			        if (reply == JOptionPane.YES_OPTION) {
+                			        	System.out.println("YES, user wants to flash.");
+                			        	backend.flashBootAnimation();
+                			        }
                 				}
                 				
                 				btnBrowse.setEnabled(true);
