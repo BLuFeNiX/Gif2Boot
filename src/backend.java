@@ -211,7 +211,7 @@ public class backend {
 		return modifiedImage;
 	}
 	
-	private static BufferedImage zoomFrame(BufferedImage bufferedImage, int frameHeight, int frameWidth) {
+	private static BufferedImage zoomFrame(BufferedImage bufferedImage, int frameWidth, int frameHeight) {
 		int offsetHeight = (bufferedImage.getHeight() - frameHeight) / 2;
 		int offsetWidth = (bufferedImage.getWidth() - frameWidth) / 2;
 		// Create new (blank) image of required size
