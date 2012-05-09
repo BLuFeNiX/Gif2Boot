@@ -358,7 +358,7 @@ public class backend {
 		execute("killall adblinux");
 		execute("killall adb");
 		
-		String output = execute("gksudo --description gksudo.txt " + path + "/ADB/adblinux devices").toLowerCase();
+		String output = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux devices").toLowerCase();
 		if ( output.contains("device not found") ) {
 			return 1;
 		}
