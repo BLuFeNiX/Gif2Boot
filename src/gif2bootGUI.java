@@ -82,7 +82,7 @@ public class gif2bootGUI extends JFrame {
 		mntmFlashBootAnimation.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	new Thread( new Runnable() { public void run() {
-            		backend.flashBootAnimation();
+            		beginFlash();
             	}
             	}).start();
             }
@@ -120,7 +120,20 @@ public class gif2bootGUI extends JFrame {
 								 "1920x1152","1920x1200","2048x1536","2560x1536","2560x1600" };
 		final JComboBox comboBoxResolution = new JComboBox(resolutions);
 		comboBoxResolution.setSelectedIndex(3);
+		final JCheckBox chckbxZoomFrameHACK = new JCheckBox("zoom frame"); // can't call variable in thread if it hasn't been declared yet
 		final JCheckBox chckbxCenterFrame = new JCheckBox("center frame");
+		chckbxCenterFrame.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	chckbxZoomFrameHACK.setSelected(false);
+            }
+        });
+		final JCheckBox chckbxZoomFrame = chckbxZoomFrameHACK;
+		chckbxZoomFrame.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	chckbxCenterFrame.setSelected(false);
+            }
+        });
+		
 		
 		
 		// PREVIEW PANEL
@@ -147,16 +160,23 @@ public class gif2bootGUI extends JFrame {
                                 String[] dim = temp.split("x");
                                 int x = Integer.parseInt(dim[0]);
                                 int y = Integer.parseInt(dim[1]);
-                                boolean isCenterFrame = chckbxCenterFrame.isSelected();
+                                
+                                String options = "";
+                                if (chckbxCenterFrame.isSelected()) {
+                                	options += "centerFrame,";
+                                }
+                                else if (chckbxZoomFrame.isSelected()) {
+                                	options += "zoomFrame,";
+                                }
                                 
                                 btnBrowse.setEnabled(false);
                                 filenameField.setEnabled(false);
                                 comboBoxResolution.setEnabled(false);
-                                chckbxCenterFrame.setEnabled(false);
+                                //chckbxCenterFrame.setEnabled(false);
                                 btnCreate.setEnabled(false);
                                 
                                 
-                                int status = backend.createBootZip(new File(filenameField.getText()), new Dimension(x, y), isCenterFrame, progressBar, progressLabel);
+                                int status = backend.createBootZip(new File(filenameField.getText()), new Dimension(x, y), options, progressBar, progressLabel);
                                 
                 				switch (status) {
                 				case 1:
@@ -173,29 +193,23 @@ public class gif2bootGUI extends JFrame {
                 					int reply = JOptionPane.showConfirmDialog(null, "Done. Transfer boot animation to phone?", "Success", JOptionPane.YES_NO_OPTION);
                 			        if (reply == JOptionPane.YES_OPTION) {
                 			        	System.out.println("YES, user wants to flash.");
-                			        	backend.flashBootAnimation();
+                			        	beginFlash();
                 			        }
                 				}
                 				
                 				btnBrowse.setEnabled(true);
                                 filenameField.setEnabled(true);
                                 comboBoxResolution.setEnabled(true);
-                                chckbxCenterFrame.setEnabled(true);
+                                //chckbxCenterFrame.setEnabled(true);
                                 btnCreate.setEnabled(true);
                 				
                             }
+
                         }).start();
 				
             }
         });
-		
-		
 
-		
-		
-		
-		
-		
 		
 		
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
@@ -231,12 +245,13 @@ public class gif2bootGUI extends JFrame {
 				.addGroup(gl_optionsPanel.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(gl_optionsPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(chckbxZoomFrame)
+						.addComponent(chckbxCenterFrame)
 						.addGroup(gl_optionsPanel.createSequentialGroup()
 							.addComponent(lblDeviceResolution)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(comboBoxResolution, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addComponent(chckbxCenterFrame))
-					.addContainerGap(300, Short.MAX_VALUE))
+							.addComponent(comboBoxResolution, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap(18, Short.MAX_VALUE))
 		);
 		gl_optionsPanel.setVerticalGroup(
 			gl_optionsPanel.createParallelGroup(Alignment.LEADING)
@@ -246,8 +261,12 @@ public class gif2bootGUI extends JFrame {
 						.addComponent(lblDeviceResolution)
 						.addComponent(comboBoxResolution, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(chckbxCenterFrame)
-					.addContainerGap(220, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(chckbxZoomFrame)
+					.addContainerGap(125, Short.MAX_VALUE))
 		);
 		optionsPanel.setLayout(gl_optionsPanel);
 			
@@ -298,4 +317,22 @@ public class gif2bootGUI extends JFrame {
 		loadPanel.setLayout(gl_loadPanel);
 		contentPane.setLayout(gl_contentPane);
 	}
+	
+	protected void beginFlash() {
+		int result = backend.flashBootAnimation();
+		if (result == 1) {
+    		JOptionPane.showMessageDialog(new JFrame(), "No Android device detected. Please check the following:\n" +
+    				"* Are device drivers installed (Windows only)\n" +
+    				"* Is USB Debuging enabled on the device?\n" +
+    				"* Is the device connected?");
+    	}
+		else if (result == 2) {
+			JOptionPane.showMessageDialog(new JFrame(), "Operation Cancelled. Boot animation not flashed.");
+		}
+    	else {
+    		JOptionPane.showMessageDialog(new JFrame(), "Boot animation flash appears to be successful. Reeboot and enjoy :)");
+    	}								
+	}
+	
+	
 }

@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Scanner;
@@ -34,7 +33,7 @@ import org.apache.xmlgraphics.image.codec.png.PNGImageEncoder;
 
 public class backend {
 
-	public static int createBootZip(File file, Dimension dim, boolean centerFrame, final JProgressBar progressBar, final JLabel progressLabel) {
+	public static int createBootZip(File file, Dimension deviceDimensions, String options, final JProgressBar progressBar, final JLabel progressLabel) {
 		
 		int framerate = 10; //default to initialize with, will change later
 		
@@ -119,16 +118,19 @@ public class backend {
 			background = combined; // save our most recently created frame as the background for the next frame (in case of optimized GIFs)
 
 			
-			// if --centerFrame was used
-			if (centerFrame) {
-				combined = centerFrame(combined, (int)dim.getHeight());
-			} // OTHERWISE, rotate frame if image is wider than it is high (this way we don't squash it on resize)		
+			// check for options
+			if (options.contains("centerFrame")) {
+				combined = centerFrame(combined, (int)deviceDimensions.getHeight());
+			}
+			else if (options.contains("zoomFrame")) {
+				combined = zoomFrame(combined, (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight());
+			}// OTHERWISE, rotate frame if image is wider than it is high (this way we don't squash it on resize)	
 			else if (combined.getWidth() > combined.getHeight()) {
 				combined = rotate270(combined);
 			}
 
 			// resize frame to fit screen
-			combined = resizeToScreen(combined, (int)dim.getWidth(), (int)dim.getHeight());
+			combined = resizeToScreen(combined, (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight());
 
 			// clean up old files and create new directory for images
 			if (i == 0) {
@@ -157,7 +159,7 @@ public class backend {
 		} catch (IOException e) { return 3; }
 		
 		System.out.println("creating desc.txt");
-		createDescFile((int)dim.getWidth(), (int)dim.getHeight(), framerate);
+		createDescFile((int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight(), framerate);
 		System.out.println("packing files into bootanimation.zip");
 		filenames[numImages] = "desc.txt"; //don't need to add one because of 0-based array
 		try {
@@ -185,13 +187,13 @@ public class backend {
 	
 	private static BufferedImage resizeToScreen(BufferedImage bufferedImage, int resizeWidth, int resizeHeight) {
 		// Create new (blank) image of required (scaled) size
-					BufferedImage scaledImage = new BufferedImage(resizeWidth, resizeHeight, BufferedImage.TYPE_INT_ARGB);
-					// Paint scaled version of image to new image
-					Graphics2D graphics2D = scaledImage.createGraphics();
-					graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-					graphics2D.drawImage(bufferedImage, 0, 0, resizeWidth, resizeHeight, null);
-					graphics2D.dispose();
-					return scaledImage;
+		BufferedImage scaledImage = new BufferedImage(resizeWidth, resizeHeight, BufferedImage.TYPE_INT_ARGB);
+		// Paint scaled version of image to new image
+		Graphics2D graphics2D = scaledImage.createGraphics();
+		graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		graphics2D.drawImage(bufferedImage, 0, 0, resizeWidth, resizeHeight, null);
+		graphics2D.dispose();
+		return scaledImage;
 	}
 
 	private static BufferedImage centerFrame(BufferedImage bufferedImage, int resizeHeight) {
@@ -205,6 +207,19 @@ public class backend {
 		Graphics2D graphics2Dtest = modifiedImage.createGraphics();
 		graphics2Dtest.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		graphics2Dtest.drawImage(bufferedImage, (cropSide * -1), 0, bufferedImage.getWidth(), bufferedImage.getHeight(), null);
+		graphics2Dtest.dispose();
+		return modifiedImage;
+	}
+	
+	private static BufferedImage zoomFrame(BufferedImage bufferedImage, int frameHeight, int frameWidth) {
+		int offsetHeight = (bufferedImage.getHeight() - frameHeight) / 2;
+		int offsetWidth = (bufferedImage.getWidth() - frameWidth) / 2;
+		// Create new (blank) image of required size
+		BufferedImage modifiedImage = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_INT_ARGB);
+		// Paint cropped image at negative coords to cause cropping
+		Graphics2D graphics2Dtest = modifiedImage.createGraphics();
+		graphics2Dtest.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		graphics2Dtest.drawImage(bufferedImage, (offsetWidth * -1), (offsetHeight * -1), bufferedImage.getWidth(), bufferedImage.getHeight(), null);
 		graphics2Dtest.dispose();
 		return modifiedImage;
 	}
@@ -336,16 +351,39 @@ public class backend {
 //		System.out.println("STEP 3");
 //		execute("\\ADB\\adb.exe push bootanimation.zip /data/local/");
 		
+		
 		//LINUX
+		System.out.println(System.getProperty("os.name"));
 		String path = new File("").getAbsolutePath();
 		execute("killall adblinux");
 		execute("killall adb");
-		execute("gksudo --description gksudo.txt " + path + "/ADB/adblinux devices");
-		execute("gksudo --description gksudo.txt " + path + "/ADB/adblinux push bootanimation.zip /data/local/");
-		System.out.println("DONE.");
+		
+		String output = execute("gksudo --description gksudo.txt " + path + "/ADB/adblinux devices").toLowerCase();
+		if ( output.contains("device not found") ) {
+			return 1;
+		}
+		else if ( removeWhitespace(output).isEmpty() ) {
+			return 2;
+		}
+		
+		String output2 = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux push bootanimation.zip /data/local/").toLowerCase();
+		if ( output2.contains("device not found") ) {
+			return 1;
+		}
+		else if ( removeWhitespace(output2).isEmpty() ) {
+			return 2;
+		}
+		System.out.println("DONE FLASHING.");
 		return 0;
 
 	}
+
+
+	private static String removeWhitespace(String output) {
+		return output.replaceAll(" ", "").replaceAll("\n", "").replaceAll("\t", "");
+	}
+
+
 
 
 	private static String execute(String command) {
