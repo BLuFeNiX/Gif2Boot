@@ -329,6 +329,9 @@ public class gif2bootGUI extends JFrame {
 		else if (result == 2) {
 			JOptionPane.showMessageDialog(new JFrame(), "Operation Cancelled. Boot animation not flashed.");
 		}
+		else if (result == 3) {
+			JOptionPane.showMessageDialog(new JFrame(), System.getProperty("os.name") + " is not currently supported for automated boot animation transfer.");
+		}
     	else {
     		JOptionPane.showMessageDialog(new JFrame(), "Boot animation flash appears to be successful. Reeboot and enjoy :)");
     	}								

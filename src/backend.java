@@ -353,25 +353,30 @@ public class backend {
 		
 		
 		//LINUX
-		System.out.println(System.getProperty("os.name"));
-		String path = new File("").getAbsolutePath();
-		execute("killall adblinux");
-		execute("killall adb");
+		String OS_NAME = System.getProperty("os.name");
+		System.out.println(OS_NAME);
+		if (OS_NAME.compareToIgnoreCase("Linux") == 0) {
+			String path = new File("").getAbsolutePath();
+			execute("killall adblinux");
+			execute("killall adb");
+			String output = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux devices").toLowerCase();
+			if ( output.contains("device not found") ) {
+				return 1;
+			}
+			else if ( removeWhitespace(output).isEmpty() ) {
+				return 2;
+			}
 		
-		String output = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux devices").toLowerCase();
-		if ( output.contains("device not found") ) {
-			return 1;
+			String output2 = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux push bootanimation.zip /data/local/").toLowerCase();
+			if ( output2.contains("device not found") ) {
+				return 1;
+			}
+			else if ( removeWhitespace(output2).isEmpty() ) {
+				return 2;
+			}
 		}
-		else if ( removeWhitespace(output).isEmpty() ) {
-			return 2;
-		}
-		
-		String output2 = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux push bootanimation.zip /data/local/").toLowerCase();
-		if ( output2.contains("device not found") ) {
-			return 1;
-		}
-		else if ( removeWhitespace(output2).isEmpty() ) {
-			return 2;
+		else {
+			return 3;
 		}
 		System.out.println("DONE FLASHING.");
 		return 0;
