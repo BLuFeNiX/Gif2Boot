@@ -69,17 +69,11 @@ public class gif2bootGUI extends JFrame {
             }
         });
 		mnFile.add(mntmExit);
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
-		JMenuItem mntmAbout = new JMenuItem("About");
-		mntmAbout.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(new JFrame(), "Gif2Boot v" + VERSION	+ " is a utility that " +
-								"converts any animated GIF\ninto a bootanimation.zip for use on android phones.");
-            }
-        });
-		mnHelp.add(mntmAbout);
-		JMenuItem mntmFlashBootAnimation = new JMenuItem("Flash Boot Animation");
+		
+		JMenu mnExtras = new JMenu("Extras");
+		menuBar.add(mnExtras);
+		JMenuItem mntmFlashBootAnimation = new JMenuItem("Flash Existing Boot Animation");
+		mnExtras.add(mntmFlashBootAnimation);
 		mntmFlashBootAnimation.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	new Thread( new Runnable() { public void run() {
@@ -88,7 +82,16 @@ public class gif2bootGUI extends JFrame {
             	}).start();
             }
         });
-		mnHelp.add(mntmFlashBootAnimation);
+		JMenu mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);
+		JMenuItem mntmAbout = new JMenuItem("About");
+		mntmAbout.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(new JFrame(), "Gif2Boot v" + VERSION	+ " is a utility that " +
+								"converts any animated GIF\ninto a bootanimation.zip for use on android phones.\n\nThis utility was created by BLuFeNiX.");
+            }
+        });
+		mnHelp.add(mntmAbout);
 				
 		
 		// LOAD PANEL
@@ -334,6 +337,9 @@ public class gif2bootGUI extends JFrame {
 		}
 		else if (result == 4) {
 			JOptionPane.showMessageDialog(new JFrame(), "Failed to start ADB daemon. Please close any other instances of ADB and try again.");
+		}
+		else if (result == 5) {
+			JOptionPane.showMessageDialog(new JFrame(), "bootanimation.zip not found. Did you create one?");		
 		}
     	else {
     		JOptionPane.showMessageDialog(new JFrame(), "Boot animation flash appears to be successful. Reeboot and enjoy :)");

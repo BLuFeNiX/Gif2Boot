@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -171,10 +170,8 @@ public class backend {
 								progressLabel.setText( (int)(( (double)progressBar.getValue()/(double)images.length) *100) + "%");
 							}
 						});
-					    //System.out.println("END" + i);
 					}
 				}
-				//System.out.println("END THREAD");
 			} }).start();
 		}
 		
@@ -275,10 +272,6 @@ public class backend {
 		
 	public static void zipIt(String[] filenames) throws IOException {
         File zipFile = new File("bootanimation.zip");
-        //if (zipFile.exists()) {
-        //   System.err.println("Zip file already exists, please try another");
-        //    System.exit(-2);
-        //}
         FileOutputStream fos = new FileOutputStream(zipFile);
         ZipOutputStream zos = new ZipOutputStream(fos);
         int bytesRead;
@@ -287,10 +280,6 @@ public class backend {
         for (int i = 0; i < filenames.length; i++) {
             String name = filenames[i];
             File file = new File(name);
-            //if (!file.exists()) {
-            //    System.err.println("Skipping: " + name);
-            //    continue;
-            //}
             BufferedInputStream bis = new BufferedInputStream(
                 new FileInputStream(file));
             crc.reset();
@@ -376,104 +365,45 @@ public class backend {
 
 
 
-	public static int flashBootAnimation() {
-		
-		// WINDOWS - BROKEN
-//		String path = new File("").getAbsolutePath();
-//		System.out.println("STEP 0");
-//		execute("taskkill /f /IM adb.exe"); // kill adb ONLY if it's not being run as administrator
-//		System.out.println("STEP 1");
-//		execute(path + "\\ADB\\adb.exe start-server");
-//		System.out.println("STEP 2");
-//		execute("\\ADB\\adb.exe wait-for-device");
-//		System.out.println("STEP 3");
-//		execute("\\ADB\\adb.exe push bootanimation.zip /data/local/");
-		
-		
-		
+	public static int flashBootAnimation() {		
 		String OS_NAME = System.getProperty("os.name");
 		System.out.println(OS_NAME);
 		
-		// LINUX
-		if (OS_NAME.compareToIgnoreCase("Linux") == 0) {
-//			String path = new File("").getAbsolutePath();
-//			execute("killall adblinux");
-//			execute("killall adb");
-//			
-//			String output = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux devices").toLowerCase();
-//			if ( output.contains("device not found") ) { return 1; }
-//			else if ( removeWhitespace(output).isEmpty() ) { return 2; }
-//			
-//			String output2 = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux push bootanimation.zip /data/local/").toLowerCase();
-//			if ( output2.contains("device not found") ) { return 1; }
-//			else if ( removeWhitespace(output2).isEmpty() ) { return 2; }
-//			else if ( output2.contains("failed") ) { return 4; }
-		} // WINDOWS 7
-		else if (OS_NAME.compareToIgnoreCase("Windows 7") == 0) {			
-			String path = new File("").getAbsolutePath();
-			execute(new String[]{"taskkill", "/f", "/IM adb.exe"});
-			//System.out.println("AFTER KILL");
-			
-//			ProcessInterface adb = null;
-//			try {
-//				execute(new String[]{path + "\\ADB\\adb.exe"});
-//			} catch (Exception e) {e.printStackTrace();}
-//			String output = adb.sendCommand(new String[]{path + "\\ADB\\adb.exe", "devices"}).toLowerCase();
-			//System.out.println("OUTPUT: " + output);
-			
-			String output = execute(new String[]{path + "\\ADB\\adb.exe", "devices"}).toLowerCase();
-			
-			if ( output.contains("device not found") ) { return 1; }
-			else if ( removeWhitespace(output).isEmpty() ) { return 2; }
-			//System.out.println("AFTER DEVICES");
-			
-			//String output2 = adb.sendCommand(new String[]{path + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
-			String output2 = execute(new String[]{path + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
-			if ( output2.contains("device not found") ) { return 1; }
-			else if ( removeWhitespace(output2).isEmpty() ) { return 2; }
-			else if ( output2.contains("failed") ) { return 4; }
-			//System.out.println("AFTER PUSH");
-		}		
-		else {
-			return 3;
-		}
+		String pwd = new File("").getAbsolutePath();
+		String output = "";
+		String output2 = "";
 		
+		// LINUX
+		if (OS_NAME.toLowerCase().contains("linux")) {
+			execute(new String[]{"killall", "adblinux"});
+			execute(new String[]{"killall", "adb"});
+			output = execute(new String[]{"gksudo", "--description", "gksudo.config", pwd + "/ADB/adblinux", "devices"}).toLowerCase();
+			output2 = execute(new String[]{"gksudo", "--description", "gksudo.config", pwd + "/ADB/adblinux", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
+		} // WINDOWS
+		else if (OS_NAME.toLowerCase().contains("windows")) {			
+			execute(new String[]{"taskkill", "/f", "/IM", "adb.exe"});
+			output = execute(new String[]{pwd + "\\ADB\\adb.exe", "devices"}).toLowerCase();			
+			output2 = execute(new String[]{pwd + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
+		}		
+		else { return 3; }
+		
+		if ( output.contains("device not found") ) { return 1; }
+		else if ( removeWhitespace(output).isEmpty() ) { return 2; }
+		if ( output2.contains("device not found") ) { return 1; }
+		else if ( removeWhitespace(output2).isEmpty() ) { return 2; }
+		else if ( output2.contains("failed") ) { return 4; }
+		else if ( output2.contains("no such file or directory") ) { return 5; }
 		
 		System.out.println("DONE FLASHING.");
 		return 0;
-
 	}
 
 
 	private static String removeWhitespace(String output) {
 		return output.replaceAll(" ", "").replaceAll("\n", "").replaceAll("\t", "");
 	}
-
-
-//	private static String execute(String command) {
-//		String output = "";
-//		try {
-//			Process proc = Runtime.getRuntime().exec(command);
-//			InputStream in = proc.getInputStream();
-//			InputStream err = proc.getErrorStream();
-//			
-//			Scanner scin = new Scanner(in);
-//			while (scin.hasNext()) {
-//				output += scin.useDelimiter("\\A").next();
-//			}
-//			System.out.println("MIDDLE");
-//			Scanner scerr = new Scanner(err);
-//			while (scerr.hasNext()) {
-//				output += scerr.useDelimiter("\\A").next();
-//			}			
-//			System.out.println(output);
-//		} catch (IOException e) { e.printStackTrace(); }
-//		
-//		return output;
-//	}
 	
 	private static String execute(String[] strings) {
-		System.out.println("BEGIN SEND");
 		String output = "";
 		try {
 			ProcessBuilder builder = new ProcessBuilder(strings);
@@ -483,10 +413,7 @@ public class backend {
 
 			int c = 0;
 			byte[] buffer = new byte[2048];
-			System.out.println("BEFORE WHILE");
 			while((c = processOutput.read(buffer)) != -1 ) {
-				System.out.println("READING");
-				System.out.println(buffer[buffer.length-1]);
 				output += new String(buffer);
 				System.out.write(buffer, 0, c);
 			}
