@@ -390,32 +390,55 @@ public class backend {
 //		execute("\\ADB\\adb.exe push bootanimation.zip /data/local/");
 		
 		
-		//LINUX
+		
 		String OS_NAME = System.getProperty("os.name");
 		System.out.println(OS_NAME);
-		if (OS_NAME.compareToIgnoreCase("Linux") == 0) {
-			String path = new File("").getAbsolutePath();
-			execute("killall adblinux");
-			execute("killall adb");
-			String output = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux devices").toLowerCase();
-			if ( output.contains("device not found") ) {
-				return 1;
-			}
-			else if ( removeWhitespace(output).isEmpty() ) {
-				return 2;
-			}
 		
-			String output2 = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux push bootanimation.zip /data/local/").toLowerCase();
-			if ( output2.contains("device not found") ) {
-				return 1;
-			}
-			else if ( removeWhitespace(output2).isEmpty() ) {
-				return 2;
-			}
-		}
+		// LINUX
+		if (OS_NAME.compareToIgnoreCase("Linux") == 0) {
+//			String path = new File("").getAbsolutePath();
+//			execute("killall adblinux");
+//			execute("killall adb");
+//			
+//			String output = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux devices").toLowerCase();
+//			if ( output.contains("device not found") ) { return 1; }
+//			else if ( removeWhitespace(output).isEmpty() ) { return 2; }
+//			
+//			String output2 = execute("gksudo --description gksudo.config " + path + "/ADB/adblinux push bootanimation.zip /data/local/").toLowerCase();
+//			if ( output2.contains("device not found") ) { return 1; }
+//			else if ( removeWhitespace(output2).isEmpty() ) { return 2; }
+//			else if ( output2.contains("failed") ) { return 4; }
+		} // WINDOWS 7
+		else if (OS_NAME.compareToIgnoreCase("Windows 7") == 0) {			
+			String path = new File("").getAbsolutePath();
+			execute(new String[]{"taskkill", "/f", "/IM adb.exe"});
+			//System.out.println("AFTER KILL");
+			
+//			ProcessInterface adb = null;
+//			try {
+//				execute(new String[]{path + "\\ADB\\adb.exe"});
+//			} catch (Exception e) {e.printStackTrace();}
+//			String output = adb.sendCommand(new String[]{path + "\\ADB\\adb.exe", "devices"}).toLowerCase();
+			//System.out.println("OUTPUT: " + output);
+			
+			String output = execute(new String[]{path + "\\ADB\\adb.exe", "devices"}).toLowerCase();
+			
+			if ( output.contains("device not found") ) { return 1; }
+			else if ( removeWhitespace(output).isEmpty() ) { return 2; }
+			//System.out.println("AFTER DEVICES");
+			
+			//String output2 = adb.sendCommand(new String[]{path + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
+			String output2 = execute(new String[]{path + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
+			if ( output2.contains("device not found") ) { return 1; }
+			else if ( removeWhitespace(output2).isEmpty() ) { return 2; }
+			else if ( output2.contains("failed") ) { return 4; }
+			//System.out.println("AFTER PUSH");
+		}		
 		else {
 			return 3;
 		}
+		
+		
 		System.out.println("DONE FLASHING.");
 		return 0;
 
@@ -427,27 +450,47 @@ public class backend {
 	}
 
 
-
-
-	private static String execute(String command) {
+//	private static String execute(String command) {
+//		String output = "";
+//		try {
+//			Process proc = Runtime.getRuntime().exec(command);
+//			InputStream in = proc.getInputStream();
+//			InputStream err = proc.getErrorStream();
+//			
+//			Scanner scin = new Scanner(in);
+//			while (scin.hasNext()) {
+//				output += scin.useDelimiter("\\A").next();
+//			}
+//			System.out.println("MIDDLE");
+//			Scanner scerr = new Scanner(err);
+//			while (scerr.hasNext()) {
+//				output += scerr.useDelimiter("\\A").next();
+//			}			
+//			System.out.println(output);
+//		} catch (IOException e) { e.printStackTrace(); }
+//		
+//		return output;
+//	}
+	
+	private static String execute(String[] strings) {
+		System.out.println("BEGIN SEND");
 		String output = "";
 		try {
-			Process proc = Runtime.getRuntime().exec(command);
-			InputStream in = proc.getInputStream();
-			InputStream err = proc.getErrorStream();
-			
-			Scanner scin = new Scanner(in);
-			while (scin.hasNext()) {
-				output += scin.useDelimiter("\\A").next();
+			ProcessBuilder builder = new ProcessBuilder(strings);
+			builder.redirectErrorStream(true);
+			Process proc = builder.start();			
+			InputStream processOutput = proc.getInputStream();
+
+			int c = 0;
+			byte[] buffer = new byte[2048];
+			System.out.println("BEFORE WHILE");
+			while((c = processOutput.read(buffer)) != -1 ) {
+				System.out.println("READING");
+				System.out.println(buffer[buffer.length-1]);
+				output += new String(buffer);
+				System.out.write(buffer, 0, c);
 			}
-			
-			Scanner scerr = new Scanner(err);
-			while (scerr.hasNext()) {
-				output += scerr.useDelimiter("\\A").next();
-			}			
-			System.out.println(output);
 		} catch (IOException e) { e.printStackTrace(); }
-		
 		return output;
 	}
 	

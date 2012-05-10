@@ -1,9 +1,10 @@
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.IndexColorModel;
-import java.awt.image.WritableRaster;
-import java.util.Hashtable;
 
+/*
+ * This class allows backend.java to thread the processing of BufferedImages.
+ * The status variable indicates whether or not we have processed the image.
+ *  
+ */
 
 public class BufferedImageWrapper {
 

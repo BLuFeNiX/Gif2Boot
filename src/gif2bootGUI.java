@@ -23,6 +23,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
 
+@SuppressWarnings("serial")
 public class gif2bootGUI extends JFrame {
 
 	private final String VERSION = "0.4";
@@ -326,10 +327,13 @@ public class gif2bootGUI extends JFrame {
     				"* Is the device connected?");
     	}
 		else if (result == 2) {
-			JOptionPane.showMessageDialog(new JFrame(), "Operation Cancelled. Boot animation not flashed.");
+			JOptionPane.showMessageDialog(new JFrame(), "Operation Cancelled. Boot animation not flashed. Insufficient permissions?");
 		}
 		else if (result == 3) {
 			JOptionPane.showMessageDialog(new JFrame(), System.getProperty("os.name") + " is not currently supported for automated boot animation transfer.");
+		}
+		else if (result == 4) {
+			JOptionPane.showMessageDialog(new JFrame(), "Failed to start ADB daemon. Please close any other instances of ADB and try again.");
 		}
     	else {
     		JOptionPane.showMessageDialog(new JFrame(), "Boot animation flash appears to be successful. Reeboot and enjoy :)");
