@@ -120,17 +120,16 @@ public class gif2bootGUI extends JFrame {
 								 "1920x1152","1920x1200","2048x1536","2560x1536","2560x1600" };
 		final JComboBox comboBoxResolution = new JComboBox(resolutions);
 		comboBoxResolution.setSelectedIndex(3);
-		final JCheckBox chckbxZoomFrameHACK = new JCheckBox("zoom frame"); // can't call variable in thread if it hasn't been declared yet
+		final JCheckBox chckbxZoomFrame = new JCheckBox("zoom frame");
 		final JCheckBox chckbxCenterFrame = new JCheckBox("center frame");
 		chckbxCenterFrame.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	chckbxZoomFrameHACK.setSelected(false);
+            	chckbxZoomFrame.setSelected(false); // use check box as radio button
             }
         });
-		final JCheckBox chckbxZoomFrame = chckbxZoomFrameHACK;
 		chckbxZoomFrame.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	chckbxCenterFrame.setSelected(false);
+            	chckbxCenterFrame.setSelected(false); // use check box as radio button
             }
         });
 		
