@@ -25,7 +25,7 @@ import javax.swing.JMenu;
 
 public class gif2bootGUI extends JFrame {
 
-	private final String VERSION = "0.3";
+	private final String VERSION = "0.4";
 	private JPanel contentPane;
 	private JTextField filenameField;
 

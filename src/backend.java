@@ -33,21 +33,20 @@ import org.apache.xmlgraphics.image.codec.png.PNGImageEncoder;
 
 public class backend {
 
-	public static int createBootZip(File file, Dimension deviceDimensions, String options, final JProgressBar progressBar, final JLabel progressLabel) {
+	public static int createBootZip(File file, final Dimension deviceDimensions, final String options, final JProgressBar progressBar, final JLabel progressLabel) {
 		
 		int framerate = 10; //default to initialize with, will change later
 		
+		// does the GIF exist?
 		if (!file.exists()) {
            System.err.println("\"" + file.getName() + "\" does not exist, please check the path and try again.\n");
            return 1;
         }
 		
-		
 		ImageInputStream stream = null;
 		try {
 			stream = ImageIO.createImageInputStream(file);
 		} catch (IOException e1) { return 3; }
-		
 		
 		Iterator<ImageReader> readers = ImageIO.getImageReaders(stream);
 		if (!readers.hasNext()) {
@@ -65,11 +64,22 @@ public class backend {
 		} catch (IOException e1) { return 3; }
 		System.out.println("Number of frames: " + numImages);
 		
-		String[] filenames = new String[numImages+1]; // These are the files to include in the bootanimation.zip file at the end
-
-		BufferedImage background = null;	// optimized GIFs store only the differences in each frame, so we keep a background frame to layer them, creating a complete new frame
+		// set progress bar MAX to numImages
+		final int tempNumImages = numImages;
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				progressBar.setMaximum(tempNumImages);
+			}
+		});
 		
-		for (int i = 0; i < numImages; i++) {
+		final String[] filenames = new String[numImages+1]; // These are the files to include in the bootanimation.zip file at the end (+1 for desc.txt)
+		final BufferedImageWrapper[] images = new BufferedImageWrapper[numImages];
+		for (int i = 0; i < images.length; i++) {
+			images[i] = new BufferedImageWrapper();
+		}
+
+		// pre-process images
+		for (int i = 0; i < images.length; i++) {
 			// get metadata (in order to detect framerate and top/left positioning for each frame)
 			IIOImage frame = null;
 			try {
@@ -78,7 +88,7 @@ public class backend {
 			IIOMetadata meta = frame.getMetadata();
 			IIOMetadataNode imgRootNode = (IIOMetadataNode) meta.getAsTree("javax_imageio_gif_image_1.0");
 			
-			// get framerate for animation (only from the first frame, since it will usually all be the same)
+			// get framerate for animation (only from the first frame, since it should all be the same)
 			if (i == 0) {
 				IIOMetadataNode gce = (IIOMetadataNode) imgRootNode.getElementsByTagName("GraphicControlExtension").item(0);
 				int delay = Integer.parseInt(gce.getAttribute("delayTime"));
@@ -87,14 +97,7 @@ public class backend {
 				System.out.println("framerate: " + framerate);
 			}
 			
-			System.out.print("Processing frame " + (i+1) + "... ");
-			final int progress = (int)( (double)(i+1) / (double)numImages * 100);
-			SwingUtilities.invokeLater(new Runnable() {
-			    public void run() {
-			    	progressLabel.setText(progress + "%");
-			    	progressBar.setValue(progress);
-			    }
-			  });
+			System.out.println("Pre-processing frame " + (i+1) + "... ");
 
 			// get top/left position for current frame
 			IIOMetadataNode imgDescr = (IIOMetadataNode) imgRootNode.getElementsByTagName("ImageDescriptor").item(0);
@@ -102,61 +105,96 @@ public class backend {
 			int offsetY = Integer.parseInt(imgDescr.getAttribute("imageTopPosition"));   // frame in the animated GIF
 
 			// set current frame as overlay and previous frame as background, in order to create a complete frame
-			BufferedImage overlay;
 			try {
-				overlay = reader.read(i);
+				images[i].setImage(reader.read(i));
 			} catch (IOException e1) { return 3; }
-			if (i == 0) { background = overlay; }			
-
-			// create new object to store the complete frame
-			BufferedImage combined = new BufferedImage(background.getWidth(), background.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-			// paint both images to the new object, preserving the alpha channels
-			Graphics g = combined.getGraphics();
-			g.drawImage(background, 0, 0, null);
-			g.drawImage(overlay, offsetX, offsetY, null);			
-			background = combined; // save our most recently created frame as the background for the next frame (in case of optimized GIFs)
-
 			
-			// check for options
-			if (options.contains("centerFrame")) {
-				combined = centerFrame(combined, (int)deviceDimensions.getHeight());
-			}
-			else if (options.contains("zoomFrame")) {
-				combined = zoomFrame(combined, (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight());
-			}// OTHERWISE, rotate frame if image is wider than it is high (this way we don't squash it on resize)	
-			else if (combined.getWidth() > combined.getHeight()) {
-				combined = rotate270(combined);
-			}
-
-			// resize frame to fit screen
-			combined = resizeToScreen(combined, (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight());
-
-			// clean up old files and create new directory for images
-			if (i == 0) {
-				try {
-					delete(new File("part0"));
-					delete(new File("desc.txt"));
-				} catch (IOException e) { return 3; }
-				new File("part0/").mkdirs();
+			if (i > 0) { //don't need to process first image, since it will always be a complete frame
+				// create new object to store the complete frame
+				BufferedImage combined = new BufferedImage(images[i-1].getImage().getWidth(), images[i-1].getImage().getHeight(), BufferedImage.TYPE_INT_ARGB);
+				// paint both images to the new object, preserving the alpha channels
+				Graphics g = combined.getGraphics();
+				g.drawImage(images[i-1].getImage(), 0, 0, null);
+				g.drawImage(images[i].getImage(), offsetX, offsetY, null);			
+				images[i].setImage(combined); // save our most recently created frame as the background for the next frame (in case of optimized GIFs)
 			}
 			
-			PNGImageEncoder encoder;
-			
-		    try {
-		    	encoder = new PNGImageEncoder(new FileOutputStream("part0/img" + String.format("%04d", i) + ".png"), null);
-				encoder.encode((RenderedImage) combined);
-			} catch (IOException e) { return 3; }
-		    
-		    //add filename to list of files to zip
-		    filenames[i] = "part0/img" + String.format("%04d", i) + ".png";		    
-		    System.out.println("done.");
-		    
 		}
 		
+		//close ImageIO stream, since we've stored all the images in an array
 		try {
 			stream.close();
 		} catch (IOException e) { return 3; }
+		
+		// clean up old files and create new directory for images
+		try {
+			delete(new File("part0"));
+			delete(new File("desc.txt"));
+		} catch (IOException e) { return 3; }
+		new File("part0/").mkdirs();
+		
+		int cores = Runtime.getRuntime().availableProcessors();
+		System.out.println("Using " + cores + " cores for processing.");
+		for (int j = 0; j < cores; j++) {
+			new Thread( new Runnable() { public void run() {
+				// apply extra options (algorithms) to images, and save them to disk
+				for (int i = 0; i < images.length; i++) {
+					if (images[i].getStatus() == BufferedImageWrapper.NOT_DONE) {
+						//System.out.println("BEGIN" + i);
+						images[i].setStatus(BufferedImageWrapper.PROCESSING);
+						// check for options
+						if (options.contains("centerFrame")) {
+							images[i].setImage( centerFrame(images[i].getImage(), (int)deviceDimensions.getHeight()) );
+						}
+						else if (options.contains("zoomFrame")) {
+							images[i].setImage( zoomFrame(images[i].getImage(), (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight()) );
+						}// OTHERWISE, rotate frame if image is wider than it is high (this way we don't squash it on resize)	
+						else if (images[i].getImage().getWidth() > images[i].getImage().getHeight()) {
+							images[i].setImage( rotate270(images[i].getImage()) );
+						}
+			
+						// resize frame to fit screen
+						images[i].setImage( resizeToScreen(images[i].getImage(), (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight()) );
+						
+					    try {
+					    	PNGImageEncoder encoder = new PNGImageEncoder(new FileOutputStream("part0/img" + String.format("%04d", i) + ".png"), null);
+							encoder.encode((RenderedImage) images[i].getImage());
+						} catch (IOException e) { /*return 3;*/ }
+					    
+					    //add filename to list of files to zip
+					    filenames[i] = "part0/img" + String.format("%04d", i) + ".png";
+					    images[i].setStatus(BufferedImageWrapper.DONE);
+					    //final int progress = (int) ( (double)(i+1)/(double)images.length*100 ); //change percentage representation?
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								progressBar.setValue(progressBar.getValue()+1);
+								progressLabel.setText( (int)(( (double)progressBar.getValue()/(double)images.length) *100) + "%");
+							}
+						});
+					    //System.out.println("END" + i);
+					}
+				}
+				//System.out.println("END THREAD");
+			} }).start();
+		}
+		
+		
+		int numDone = 0;
+		while (numDone < images.length) {
+			for (int i = 0; i < images.length; i++) {
+				if (images[i].getStatus() == BufferedImageWrapper.DONE) {
+					numDone++;
+				}
+				else {
+					numDone = 0;
+					i = images.length;
+				}
+			}
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) { e.printStackTrace();	}
+		}
+		
 		
 		System.out.println("creating desc.txt");
 		createDescFile((int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight(), framerate);
