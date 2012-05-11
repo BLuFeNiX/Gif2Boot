@@ -382,7 +382,8 @@ public class backend {
 		} // WINDOWS
 		else if (OS_NAME.toLowerCase().contains("windows")) {			
 			execute(new String[]{"taskkill", "/f", "/IM", "adb.exe"});
-			output = execute(new String[]{pwd + "\\ADB\\adb.exe", "devices"}).toLowerCase();			
+			output = execute(new String[]{pwd + "\\ADB\\adb.exe", "devices"}, "daemon not running").toLowerCase();
+			System.out.println("BEGIN FLASH");
 			output2 = execute(new String[]{pwd + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
 		}		
 		else { return 3; }
@@ -397,6 +398,29 @@ public class backend {
 		System.out.println("DONE FLASHING.");
 		return 0;
 	}
+
+
+	// sometimes things don't return, so we make them return with this sentinel value
+	private static String execute(String[] strings, String sentinel) {
+		String output = "";
+		try {
+			ProcessBuilder builder = new ProcessBuilder(strings);
+			builder.redirectErrorStream(true);
+			Process proc = builder.start();			
+			InputStream processOutput = proc.getInputStream();
+
+			int c = 0;
+			byte[] buffer = new byte[2048];
+			while((c = processOutput.read(buffer)) != -1 ) {
+				output += new String(buffer);
+				if (output.toLowerCase().contains(sentinel)) { return output; }
+				System.out.write(buffer, 0, c);
+			}
+		} catch (IOException e) { e.printStackTrace(); }
+		return output;		
+	}
+
+
 
 
 	private static String removeWhitespace(String output) {
