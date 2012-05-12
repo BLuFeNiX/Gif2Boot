@@ -345,6 +345,4 @@ public class gif2bootGUI extends JFrame {
     		JOptionPane.showMessageDialog(new JFrame(), "Boot animation flash appears to be successful. Reeboot and enjoy :)");
     	}								
 	}
-	
-	
 }

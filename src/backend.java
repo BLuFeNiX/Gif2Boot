@@ -31,6 +31,8 @@ import org.apache.xmlgraphics.image.codec.png.PNGImageEncoder;
 
 
 public class backend {
+	
+	static int numImages = 0;
 
 	public static int createBootZip(File file, final Dimension deviceDimensions, final String options, final JProgressBar progressBar, final JLabel progressLabel) {
 		
@@ -57,17 +59,15 @@ public class backend {
 		System.out.println("Processing animated gif...");
 		
 		// get number of frames
-		int numImages;
 		try {
 			numImages = reader.getNumImages(true);
 		} catch (IOException e1) { return 3; }
 		System.out.println("Number of frames: " + numImages);
 		
 		// set progress bar MAX to numImages
-		final int tempNumImages = numImages;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				progressBar.setMaximum(tempNumImages);
+				progressBar.setMaximum(numImages);
 			}
 		});
 		
@@ -127,7 +127,7 @@ public class backend {
 		
 		// clean up old files and create new directory for images
 		try {
-			delete(new File("part0"));
+			delete(new File("part0/"));
 			delete(new File("desc.txt"));
 		} catch (IOException e) { return 3; }
 		new File("part0/").mkdirs();
@@ -163,7 +163,6 @@ public class backend {
 					    //add filename to list of files to zip
 					    filenames[i] = "part0/img" + String.format("%04d", i) + ".png";
 					    images[i].setStatus(BufferedImageWrapper.DONE);
-					    //final int progress = (int) ( (double)(i+1)/(double)images.length*100 ); //change percentage representation?
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
 								progressBar.setValue(progressBar.getValue()+1);
@@ -216,8 +215,6 @@ public class backend {
 		return 0;
 		
 	}
-	
-	
 	
 	
 	private static BufferedImage resizeToScreen(BufferedImage bufferedImage, int resizeWidth, int resizeHeight) {
@@ -280,16 +277,14 @@ public class backend {
         for (int i = 0; i < filenames.length; i++) {
             String name = filenames[i];
             File file = new File(name);
-            BufferedInputStream bis = new BufferedInputStream(
-                new FileInputStream(file));
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
             crc.reset();
             while ((bytesRead = bis.read(buffer)) != -1) {
                 crc.update(buffer, 0, bytesRead);
             }
             bis.close();
             // Reset to beginning of input stream
-            bis = new BufferedInputStream(
-                new FileInputStream(file));
+            bis = new BufferedInputStream(new FileInputStream(file));
             ZipEntry entry = new ZipEntry(name);
             entry.setMethod(ZipEntry.STORED);
             entry.setCompressedSize(file.length());
@@ -303,10 +298,7 @@ public class backend {
         }
         zos.close();
     }
-	
-	
-	
-	
+
 
 	public static BufferedImage rotate90(BufferedImage img) {
 		int width = img.getWidth();
@@ -333,7 +325,6 @@ public class backend {
 	}
 
 	public static void delete(File file) throws IOException{
-
 		if(file.isDirectory()){
 			//directory is empty, then delete it
 			if(file.list().length==0){
@@ -342,27 +333,24 @@ public class backend {
 			else {
 				//list all the directory contents
 				String files[] = file.list();
-
+				
 				for (String temp : files) {
 					//construct the file structure
 					File fileDelete = new File(file, temp);
 					//recursive delete
 					delete(fileDelete);
 				}
-
+				
 				//check the directory again, if empty then delete it
 				if(file.list().length==0){
 					file.delete();
 				}
 			}
-
 		}else{
 			//if file, then delete it
 			file.delete();
 		}
 	}
-
-
 
 
 	public static int flashBootAnimation() {		
@@ -420,12 +408,6 @@ public class backend {
 		return output;		
 	}
 
-
-
-
-	private static String removeWhitespace(String output) {
-		return output.replaceAll(" ", "").replaceAll("\n", "").replaceAll("\t", "");
-	}
 	
 	private static String execute(String[] strings) {
 		String output = "";
@@ -445,6 +427,8 @@ public class backend {
 		return output;
 	}
 	
-	
+	private static String removeWhitespace(String output) {
+		return output.replaceAll(" ", "").replaceAll("\n", "").replaceAll("\t", "");
+	}	
 
 }
