@@ -13,6 +13,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -27,6 +28,7 @@ import javax.swing.JMenu;
 public class gif2bootGUI extends JFrame {
 
 	private final String VERSION = "0.4";
+	private JPanel createTabPanel;
 	private JPanel contentPane;
 	private JTextField filenameField;
 
@@ -51,10 +53,18 @@ public class gif2bootGUI extends JFrame {
 		
 		setTitle("Gif2Boot v" + VERSION);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 600, 500);
+		setBounds(100, 100, 600, 535);
+		createTabPanel = new JPanel();
+		//createTabPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		//setContentPane(createTabPane);
+		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
+
+		
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.addTab("Create Boot Animation", null, createTabPanel, null);
 		
 		
 		//MENU BAR
@@ -212,35 +222,6 @@ public class gif2bootGUI extends JFrame {
 				
             }
         });
-
-		
-		
-		GroupLayout gl_contentPane = new GroupLayout(contentPane);
-		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addComponent(createPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 564, Short.MAX_VALUE)
-						.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
-							.addComponent(optionsPanel, GroupLayout.PREFERRED_SIZE, 282, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(previewPanel, GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE))
-						.addComponent(loadPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 564, Short.MAX_VALUE))
-					.addContainerGap())
-		);
-		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(loadPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addComponent(optionsPanel, GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
-						.addComponent(previewPanel, GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(createPanel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap())
-		);
 		
 		GroupLayout gl_optionsPanel = new GroupLayout(optionsPanel);
 		gl_optionsPanel.setHorizontalGroup(
@@ -318,6 +299,43 @@ public class gif2bootGUI extends JFrame {
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		loadPanel.setLayout(gl_loadPanel);
+		GroupLayout gl_createTabPanel = new GroupLayout(createTabPanel);
+		gl_createTabPanel.setHorizontalGroup(
+			gl_createTabPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_createTabPanel.createSequentialGroup()
+					.addGap(12)
+					.addGroup(gl_createTabPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(loadPanel, GroupLayout.DEFAULT_SIZE, 564, Short.MAX_VALUE)
+						.addGroup(gl_createTabPanel.createSequentialGroup()
+							.addComponent(optionsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addGap(6)
+							.addComponent(previewPanel, GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE))
+						.addComponent(createPanel, GroupLayout.DEFAULT_SIZE, 564, Short.MAX_VALUE))
+					.addGap(7))
+		);
+		gl_createTabPanel.setVerticalGroup(
+			gl_createTabPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_createTabPanel.createSequentialGroup()
+					.addGap(12)
+					.addComponent(loadPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGap(6)
+					.addGroup(gl_createTabPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(optionsPanel, GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+						.addComponent(previewPanel, GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE))
+					.addGap(6)
+					.addComponent(createPanel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE)
+					.addGap(22))
+		);
+		createTabPanel.setLayout(gl_createTabPanel);
+		GroupLayout gl_contentPane = new GroupLayout(contentPane);
+		gl_contentPane.setHorizontalGroup(
+			gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
+		);
+		gl_contentPane.setVerticalGroup(
+			gl_contentPane.createParallelGroup(Alignment.LEADING)
+				.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+		);
 		contentPane.setLayout(gl_contentPane);
 	}
 	
