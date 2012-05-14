@@ -175,15 +175,16 @@ public class backend {
 		}
 		
 		
+		// count backwards, since the last image is more likely to not be done, making the loop less CPU-intensive
 		int numDone = 0;
 		while (numDone < images.length) {
-			for (int i = 0; i < images.length; i++) {
+			for (int i = images.length-1; i > -1; i--) {
 				if (images[i].getStatus() == BufferedImageWrapper.DONE) {
 					numDone++;
 				}
 				else {
 					numDone = 0;
-					i = images.length;
+					i = -1;
 				}
 			}
 			try {
@@ -386,7 +387,6 @@ public class backend {
 		System.out.println("DONE FLASHING.");
 		return 0;
 	}
-
 
 	// sometimes things don't return, so we make them return with this sentinel value
 	private static String execute(String[] strings, String sentinel) {
