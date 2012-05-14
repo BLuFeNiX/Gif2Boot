@@ -37,8 +37,27 @@ public class ADBInterface {
 		} else {
 			OS = OTHER;
 			ADBPATH = PWD+FS+"ADB"+FS+"adblinux"; // default to Linux, so we have minimal support for Unix, BSD, etc.
-		}
-			
+		}	
+	}
+	
+	// not done
+	public int startDaemon() {
+		// LINUX
+		if (OS == LINUX) {
+			execute(new String[] { ADBPATH, "kill-server" }); // kill any unprivileged instances of ADB
+			execute(new String[]{"killall", "adblinux"});     // kill any unprivileged instances of ADB
+			execute(new String[]{"killall", "adb"});		  // kill any unprivileged instances of ADB
+			//output = execute(new String[]{"gksudo", "--description", "gksudo.config", pwd + "/ADB/adblinux", "devices"}).toLowerCase();
+			//output2 = execute(new String[]{"gksudo", "--description", "gksudo.config", pwd + "/ADB/adblinux", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
+		} // WINDOWS
+		else if (OS == WINDOWS) {			
+			execute(new String[]{"taskkill", "/f", "/IM", "adb.exe"});
+			//output = execute(new String[]{pwd + "\\ADB\\adb.exe", "devices"}, "daemon not running").toLowerCase();
+			System.out.println("BEGIN FLASH");
+			//output2 = execute(new String[]{pwd + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
+		}		
+		else { return 3; }
+		return 0;
 	}
 
 	public int push(String sourceFile, String destFile) {
