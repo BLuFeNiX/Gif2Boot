@@ -18,6 +18,7 @@ public class ADBInterface {
 	
 	public final int DEVICE_NOT_FOUND = 1;
 	public final int OUTPUT_EMPTY = 2;
+	public final int OS_NOT_SUPPORTED = 3;
 	public final int FAILED = 4;
 	public final int NO_SUCH_FILE = 5;
 	
@@ -40,24 +41,29 @@ public class ADBInterface {
 		}	
 	}
 	
-	// not done
+	
 	public int startDaemon() {
+		String output = null;
 		// LINUX
 		if (OS == LINUX) {
 			execute(new String[] { ADBPATH, "kill-server" }); // kill any unprivileged instances of ADB
 			execute(new String[]{"killall", "adblinux"});     // kill any unprivileged instances of ADB
 			execute(new String[]{"killall", "adb"});		  // kill any unprivileged instances of ADB
-			//output = execute(new String[]{"gksudo", "--description", "gksudo.config", pwd + "/ADB/adblinux", "devices"}).toLowerCase();
-			//output2 = execute(new String[]{"gksudo", "--description", "gksudo.config", pwd + "/ADB/adblinux", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
+			output = execute(new String[]{"gksudo", "--description", "gksudo.config", ADBPATH, "start-server"});
 		} // WINDOWS
-		else if (OS == WINDOWS) {			
+		else if (OS == WINDOWS) {
+			execute(new String[] { ADBPATH, "kill-server" }); // kill any unprivileged instances of ADB
 			execute(new String[]{"taskkill", "/f", "/IM", "adb.exe"});
-			//output = execute(new String[]{pwd + "\\ADB\\adb.exe", "devices"}, "daemon not running").toLowerCase();
-			System.out.println("BEGIN FLASH");
-			//output2 = execute(new String[]{pwd + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
-		}		
-		else { return 3; }
-		return 0;
+			output = execute(new String[]{ADBPATH, "start-server"}, "daemon not running");
+		}
+		else if (OS == MAC) {
+			execute(new String[] { ADBPATH, "kill-server" }); // kill any unprivileged instances of ADB
+			output = execute(new String[]{"gksudo", "--description", "gksudo.config", ADBPATH, "start-server"});
+		}
+		else { return OS_NOT_SUPPORTED; }
+		
+		return parseOutput(output);
+		
 	}
 
 	public int push(String sourceFile, String destFile) {

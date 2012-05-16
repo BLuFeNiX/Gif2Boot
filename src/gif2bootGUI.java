@@ -31,6 +31,8 @@ public class gif2bootGUI extends JFrame {
 	private JPanel createTabPanel;
 	private JPanel contentPane;
 	private JTextField filenameField;
+	private String PWD = new File("").getAbsolutePath();
+	private String FS = System.getProperty("file.separator");
 
 	/**
 	 * Launch the application.
@@ -87,7 +89,7 @@ public class gif2bootGUI extends JFrame {
 		mntmFlashBootAnimation.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	new Thread( new Runnable() { public void run() {
-            		beginFlash();
+            		flashBootAnimation(PWD+FS+"bootanimation.zip");
             	}
             	}).start();
             }
@@ -206,7 +208,7 @@ public class gif2bootGUI extends JFrame {
                 					int reply = JOptionPane.showConfirmDialog(null, "Done. Transfer boot animation to phone?", "Success", JOptionPane.YES_NO_OPTION);
                 			        if (reply == JOptionPane.YES_OPTION) {
                 			        	System.out.println("YES, user wants to flash.");
-                			        	beginFlash();
+                			        	flashBootAnimation(PWD+FS+"bootanimation.zip");
                 			        }
                 				}
                 				
@@ -339,8 +341,8 @@ public class gif2bootGUI extends JFrame {
 		contentPane.setLayout(gl_contentPane);
 	}
 	
-	protected void beginFlash() {
-		int result = backend.flashBootAnimation();
+	protected void flashBootAnimation(String path) {
+		int result = backend.flashBootAnimation(path);
 		if (result == 1) {
     		JOptionPane.showMessageDialog(new JFrame(), "No Android device detected. Please check the following:\n" +
     				"* Are device drivers installed (Windows only)\n" +

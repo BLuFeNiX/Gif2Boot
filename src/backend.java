@@ -352,83 +352,14 @@ public class backend {
 			file.delete();
 		}
 	}
-
-
-	public static int flashBootAnimation() {		
-		String OS_NAME = System.getProperty("os.name");
-		System.out.println(OS_NAME);
-		
-		String pwd = new File("").getAbsolutePath();
-		String output = "";
-		String output2 = "";
-		
-		// LINUX
-		if (OS_NAME.toLowerCase().contains("linux")) {
-			execute(new String[]{"killall", "adblinux"});
-			execute(new String[]{"killall", "adb"});
-			output = execute(new String[]{"gksudo", "--description", "gksudo.config", pwd + "/ADB/adblinux", "devices"}).toLowerCase();
-			output2 = execute(new String[]{"gksudo", "--description", "gksudo.config", pwd + "/ADB/adblinux", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
-		} // WINDOWS
-		else if (OS_NAME.toLowerCase().contains("windows")) {			
-			execute(new String[]{"taskkill", "/f", "/IM", "adb.exe"});
-			output = execute(new String[]{pwd + "\\ADB\\adb.exe", "devices"}, "daemon not running").toLowerCase();
-			System.out.println("BEGIN FLASH");
-			output2 = execute(new String[]{pwd + "\\ADB\\adb.exe", "push", "bootanimation.zip", "/data/local/"}).toLowerCase();
-		}		
-		else { return 3; }
-		
-		if ( output.contains("device not found") ) { return 1; }
-		else if ( removeWhitespace(output).isEmpty() ) { return 2; }
-		if ( output2.contains("device not found") ) { return 1; }
-		else if ( removeWhitespace(output2).isEmpty() ) { return 2; }
-		else if ( output2.contains("failed") ) { return 4; }
-		else if ( output2.contains("no such file or directory") ) { return 5; }
-		
-		System.out.println("DONE FLASHING.");
-		return 0;
-	}
-
-	// sometimes things don't return, so we make them return with this sentinel value
-	private static String execute(String[] strings, String sentinel) {
-		String output = "";
-		try {
-			ProcessBuilder builder = new ProcessBuilder(strings);
-			builder.redirectErrorStream(true);
-			Process proc = builder.start();			
-			InputStream processOutput = proc.getInputStream();
-
-			int c = 0;
-			byte[] buffer = new byte[2048];
-			while((c = processOutput.read(buffer)) != -1 ) {
-				output += new String(buffer);
-				if (output.toLowerCase().contains(sentinel)) { return output; }
-				System.out.write(buffer, 0, c);
-			}
-		} catch (IOException e) { e.printStackTrace(); }
-		return output;		
-	}
-
 	
-	private static String execute(String[] strings) {
-		String output = "";
-		try {
-			ProcessBuilder builder = new ProcessBuilder(strings);
-			builder.redirectErrorStream(true);
-			Process proc = builder.start();			
-			InputStream processOutput = proc.getInputStream();
-
-			int c = 0;
-			byte[] buffer = new byte[2048];
-			while((c = processOutput.read(buffer)) != -1 ) {
-				output += new String(buffer);
-				System.out.write(buffer, 0, c);
-			}
-		} catch (IOException e) { e.printStackTrace(); }
-		return output;
+	public static int flashBootAnimation(String path) {	
+		ADBInterface adb = new ADBInterface();
+		int status = adb.startDaemon();
+		if (status > 0) {
+			return status; 
+		}
+		return adb.push(path, "/data/local/bootanimation.zip");
 	}
-	
-	private static String removeWhitespace(String output) {
-		return output.replaceAll(" ", "").replaceAll("\n", "").replaceAll("\t", "");
-	}	
 
 }
