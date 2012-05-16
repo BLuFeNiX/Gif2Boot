@@ -16,11 +16,12 @@ public class ADBInterface {
 	private final int LINUX   = 3;
 	private final int OTHER   = 4;
 	
-	public final int DEVICE_NOT_FOUND = 1;
-	public final int OUTPUT_EMPTY = 2;
-	public final int OS_NOT_SUPPORTED = 3;
-	public final int FAILED = 4;
-	public final int NO_SUCH_FILE = 5;
+	public final static int DEVICE_NOT_FOUND = 1;
+	public final static int OUTPUT_EMPTY = 2;
+	public final static int OS_NOT_SUPPORTED = 3;
+	public final static int FAILED = 4;
+	public final static int NO_SUCH_FILE = 5;
+	public final static int DEVICE_OFFLINE = 6;
 	
 	ADBInterface() {
 		this.OS_NAME = System.getProperty("os.name");
@@ -38,7 +39,8 @@ public class ADBInterface {
 		} else {
 			OS = OTHER;
 			ADBPATH = PWD+FS+"ADB"+FS+"adblinux"; // default to Linux, so we have minimal support for Unix, BSD, etc.
-		}	
+		}
+		System.out.println("OS detected: " + OS_NAME + " (" + OS + ")");
 	}
 	
 	
@@ -113,6 +115,7 @@ public class ADBInterface {
 		else if ( removeWhitespace(output).isEmpty() ) { return OUTPUT_EMPTY; }
 		else if ( output.contains("failed") ) { return FAILED; }
 		else if ( output.contains("no such file or directory") ) { return NO_SUCH_FILE; }
+		else if ( output.contains("device offline") ) { return DEVICE_OFFLINE; }
 		else { return 0; }
 	}
 

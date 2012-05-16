@@ -92,6 +92,10 @@ public class backend {
 				IIOMetadataNode gce = (IIOMetadataNode) imgRootNode.getElementsByTagName("GraphicControlExtension").item(0);
 				int delay = Integer.parseInt(gce.getAttribute("delayTime"));
 				System.out.println("gif frame delay: " + delay);
+				if (delay < 1) {
+					System.out.println("improper GIF delay, setting delay to 10");
+					delay = 10;
+				}
 				framerate = (100 / delay);  // get framerate from delay
 				System.out.println("framerate: " + framerate);
 			}

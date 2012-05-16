@@ -343,23 +343,30 @@ public class gif2bootGUI extends JFrame {
 	
 	protected void flashBootAnimation(String path) {
 		int result = backend.flashBootAnimation(path);
-		if (result == 1) {
+
+		if (result == ADBInterface.DEVICE_NOT_FOUND) {
     		JOptionPane.showMessageDialog(new JFrame(), "No Android device detected. Please check the following:\n" +
     				"* Are device drivers installed (Windows only)\n" +
     				"* Is USB Debuging enabled on the device?\n" +
     				"* Is the device connected?");
     	}
-		else if (result == 2) {
+		else if (result == ADBInterface.OUTPUT_EMPTY) {
 			JOptionPane.showMessageDialog(new JFrame(), "Operation Cancelled. Boot animation not flashed. Insufficient permissions?");
 		}
-		else if (result == 3) {
+		else if (result == ADBInterface.OS_NOT_SUPPORTED) {
 			JOptionPane.showMessageDialog(new JFrame(), System.getProperty("os.name") + " is not currently supported for automated boot animation transfer.");
 		}
-		else if (result == 4) {
+		else if (result == ADBInterface.FAILED) {
 			JOptionPane.showMessageDialog(new JFrame(), "Failed to start ADB daemon. Please close any other instances of ADB and try again.");
 		}
-		else if (result == 5) {
+		else if (result == ADBInterface.NO_SUCH_FILE) {
 			JOptionPane.showMessageDialog(new JFrame(), "bootanimation.zip not found. Did you create one?");		
+		}
+		else if (result == ADBInterface.DEVICE_OFFLINE) {
+			JOptionPane.showMessageDialog(new JFrame(), "Device appears to be connected, but is offline. Please check the following:\n" +
+					"* Is USB Debuging enabled on the device?\n" +
+					"* Are you connecting to the device in a non-standard way? (emulation, cheap USB hub, etc.)\n" +
+    				"* Reboot the device.");			
 		}
     	else {
     		JOptionPane.showMessageDialog(new JFrame(), "Boot animation flash appears to be successful. Reeboot and enjoy :)");
