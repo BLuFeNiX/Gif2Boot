@@ -60,9 +60,14 @@ public class ADBInterface {
 		}
 		else if (OS == MAC) {
 			execute(new String[] { ADBPATH, "kill-server" }); // kill any unprivileged instances of ADB
-			output = execute(new String[]{"gksudo", "--description", "gksudo.config", ADBPATH, "start-server"});
+			output = execute(new String[]{ADBPATH, "start-server"});
+		}
+		else if (OS == OTHER){
+			execute(new String[] { ADBPATH, "kill-server" }); // kill any unprivileged instances of ADB
+			output = execute(new String[]{ADBPATH, "start-server"});
 		}
 		else { return OS_NOT_SUPPORTED; }
+		
 		
 		return parseOutput(output);
 		
