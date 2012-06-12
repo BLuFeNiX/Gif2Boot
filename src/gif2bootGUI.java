@@ -3,6 +3,7 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -27,7 +28,7 @@ import javax.swing.JMenu;
 @SuppressWarnings("serial")
 public class gif2bootGUI extends JFrame {
 
-	private final String VERSION = "0.4";
+	private final String VERSION = "0.5";
 	private JPanel createTabPanel;
 	private JPanel contentPane;
 	private JTextField filenameField;
@@ -105,6 +106,20 @@ public class gif2bootGUI extends JFrame {
         });
 		mnHelp.add(mntmAbout);
 				
+		
+		// DONATION LINK
+		JLabel lblDonating = new JLabel("If you found this software useful, please consider");
+		LinkLabel lblDonating_1 = new LinkLabel("donating.");
+		lblDonating_1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	String url = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZWD6P3YW4EX9Q";
+            	try {
+            		java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+				} catch (IOException e1) { e1.printStackTrace(); }
+            }
+        });
+		
+		
 		
 		// LOAD PANEL
 		JPanel loadPanel = new JPanel();
@@ -329,14 +344,26 @@ public class gif2bootGUI extends JFrame {
 					.addGap(22))
 		);
 		createTabPanel.setLayout(gl_createTabPanel);
+		
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addContainerGap(148, Short.MAX_VALUE)
+					.addComponent(lblDonating)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblDonating_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap())
 				.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
 		);
 		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
-				.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblDonating_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblDonating)))
 		);
 		contentPane.setLayout(gl_contentPane);
 	}
