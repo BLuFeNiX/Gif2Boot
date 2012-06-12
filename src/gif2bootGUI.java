@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -28,17 +30,23 @@ import javax.swing.JMenu;
 @SuppressWarnings("serial")
 public class gif2bootGUI extends JFrame {
 
-	private final String VERSION = "0.5";
+	private final String VERSION = "0.5.1";
 	private JPanel createTabPanel;
 	private JPanel contentPane;
 	private JTextField filenameField;
-	private String PWD = new File("").getAbsolutePath();
+	//private String PWD = new File("").getAbsolutePath();
+	private static String PWD = ClassLoader.getSystemClassLoader().getResource(".").getPath();
 	private String FS = System.getProperty("file.separator");
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
+		try {
+			PWD = URLDecoder.decode(PWD, "UTF-8");
+		} catch (UnsupportedEncodingException e1) { e1.printStackTrace(); }
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -132,7 +140,8 @@ public class gif2bootGUI extends JFrame {
                 System.out.println("BROWSE");
                 JFileChooser fileChooser = new JFileChooser();
                 //fileChooser.setCurrentDirectory(new File(filenameField.getText()));
-                fileChooser.setCurrentDirectory(new File("."));
+                System.out.println(PWD);
+                fileChooser.setCurrentDirectory(new File(PWD));
                 int returnVal = fileChooser.showOpenDialog(new JFrame());
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                 	File file = fileChooser.getSelectedFile();
@@ -206,7 +215,7 @@ public class gif2bootGUI extends JFrame {
                                 btnCreate.setEnabled(false);
                                 
                                 
-                                int status = backend.createBootZip(new File(filenameField.getText()), new Dimension(x, y), options, progressBar, progressLabel);
+                                int status = backend.createBootZip(new File(filenameField.getText()), new Dimension(x, y), options, progressBar, progressLabel, PWD);
                                 
                 				switch (status) {
                 				case 1:

@@ -32,9 +32,11 @@ import org.apache.xmlgraphics.image.codec.png.PNGImageEncoder;
 public class backend {
 	
 	static int numImages = 0;
+	static String PWD;
 
-	public static int createBootZip(File file, final Dimension deviceDimensions, final String options, final JProgressBar progressBar, final JLabel progressLabel) {
+	public static int createBootZip(File file, final Dimension deviceDimensions, final String options, final JProgressBar progressBar, final JLabel progressLabel, String pwdTemp) {
 		
+		PWD = pwdTemp;
 		int framerate = 10; //default to initialize with, will change later
 		
 		// does the GIF exist?
@@ -272,7 +274,7 @@ public class backend {
 	}
 		
 	public static void zipIt(String[] filenames) throws IOException {
-        File zipFile = new File("bootanimation.zip");
+        File zipFile = new File(PWD+"bootanimation.zip");
         FileOutputStream fos = new FileOutputStream(zipFile);
         ZipOutputStream zos = new ZipOutputStream(fos);
         int bytesRead;
