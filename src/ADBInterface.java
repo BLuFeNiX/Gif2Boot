@@ -80,6 +80,7 @@ public class ADBInterface {
 			output = execute(new String[] { "gksudo", "--description", "gksudo.config", ADBPATH, "push", sourceFile, destFile });
 			break;
 		case WINDOWS:
+			if (sourceFile.startsWith("/")) { sourceFile = sourceFile.substring(1); } //remove any preceding "/" on windows machines
 			output = execute(new String[] { ADBPATH, "push", sourceFile, destFile });
 			break;
 		case MAC:
@@ -100,6 +101,7 @@ public class ADBInterface {
 			output = execute(new String[] { "gksudo", "--description", "gksudo.config", ADBPATH, "pull", sourceFile, destFile });
 			break;
 		case WINDOWS:
+			if (destFile.startsWith("/")) { destFile = destFile.substring(1); } //remove any preceding "/" on windows machines
 			output = execute(new String[] { ADBPATH, "pull", sourceFile, destFile });
 			break;
 		case MAC:

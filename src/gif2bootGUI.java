@@ -98,7 +98,7 @@ public class gif2bootGUI extends JFrame {
 		mntmFlashBootAnimation.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	new Thread( new Runnable() { public void run() {
-            		flashBootAnimation(PWD+FS+"bootanimation.zip");
+            		flashBootAnimation(PWD+"bootanimation.zip");
             	}
             	}).start();
             }

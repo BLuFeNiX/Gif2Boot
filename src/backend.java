@@ -7,6 +7,7 @@ import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -148,7 +149,7 @@ public class backend {
 						images[i].setStatus(BufferedImageWrapper.PROCESSING);
 						// check for options
 						if (options.contains("centerFrame")) {
-							images[i].setImage( centerFrame(images[i].getImage(), (int)deviceDimensions.getHeight()) );
+							images[i].setImage( centerFrame(images[i].getImage(), (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight()) );
 						}
 						else if (options.contains("zoomFrame")) {
 							images[i].setImage( zoomFrame(images[i].getImage(), (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight()) );
@@ -234,9 +235,9 @@ public class backend {
 		return scaledImage;
 	}
 
-	private static BufferedImage centerFrame(BufferedImage bufferedImage, int resizeHeight) {
+	private static BufferedImage centerFrame(BufferedImage bufferedImage, int resizeWidth, int resizeHeight) {
 		double ratio = (double)bufferedImage.getHeight() / (double)resizeHeight;
-		int newWidth = (int) ((double)bufferedImage.getWidth() * ratio);
+		int newWidth =  (int) Math.round(((double)resizeWidth * ratio));
 		int cropTotal = bufferedImage.getWidth() - newWidth;
 		int cropSide = cropTotal / 2;			
 		// Create new (blank) image of required (cropped) size
@@ -364,6 +365,7 @@ public class backend {
 		if (status > 0) {
 			return status; 
 		}
+		System.out.println("Trying to flash: " + path);
 		return adb.push(path, "/data/local/bootanimation.zip");
 	}
 
