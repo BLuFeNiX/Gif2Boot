@@ -30,7 +30,7 @@ import javax.swing.JMenu;
 @SuppressWarnings("serial")
 public class gif2bootGUI extends JFrame {
 
-	private final String VERSION = "0.5.1";
+	private final String VERSION = "0.5.2";
 	private JPanel createTabPanel;
 	private JPanel contentPane;
 	private JTextField filenameField;
