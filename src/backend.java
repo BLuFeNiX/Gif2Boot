@@ -212,6 +212,8 @@ public class backend {
 			System.out.println("cleaning up...");
 			delete(new File("part0"));
 			delete(new File("desc.txt"));
+			delete(new File("part0")); //in case files were locked
+			delete(new File("desc.txt")); //in case files were locked
 		} catch (IOException e) { return 3; }
 		
 		
