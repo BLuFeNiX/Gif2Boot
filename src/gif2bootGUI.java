@@ -156,9 +156,10 @@ public class gif2bootGUI extends JFrame {
 		optionsPanel.setBorder(new TitledBorder(null, "Options", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		JLabel lblDeviceResolution = new JLabel("Device Resolution:");
 		String[] resolutions = { "240x320","240x400","240x432","320x480","480x640","480x800","480x854",
-								 "600x1024","640x960","1024x600","1024x768","1280x768","1280x800","1536x1152",
+								 "600x1024","640x960", "800x1280", "1024x600","1024x768","1280x768","1280x800","1536x1152",
 								 "1920x1152","1920x1200","2048x1536","2560x1536","2560x1600" };
 		final JComboBox comboBoxResolution = new JComboBox(resolutions);
+		comboBoxResolution.setEditable(true);
 		comboBoxResolution.setSelectedIndex(3);
 		final JCheckBox chckbxZoomFrame = new JCheckBox("zoom frame");
 		final JCheckBox chckbxCenterFrame = new JCheckBox("center frame");
@@ -195,10 +196,23 @@ public class gif2bootGUI extends JFrame {
                         new Runnable() {
                             public void run() {
                             	
-                            	String temp = (String) comboBoxResolution.getSelectedItem();
-                                String[] dim = temp.split("x");
-                                int x = Integer.parseInt(dim[0]);
-                                int y = Integer.parseInt(dim[1]);
+                            	int x = 0;
+                            	int y = 0;
+                            	try {
+                            		String temp = (String) comboBoxResolution.getSelectedItem();
+                            		String[] dim = temp.split("x");
+                            		x = Integer.parseInt(dim[0]);
+                            		y = Integer.parseInt(dim[1]);
+                            	} catch(NumberFormatException nfe) {
+                            		x = 0;
+                            		y = 0;
+                            		// error handled later
+                            	}
+                            	catch(ArrayIndexOutOfBoundsException aioobe) {
+                            		x = 0;
+                            		y = 0;
+                            		// error handled later
+                            	}
                                 
                                 String options = "";
                                 if (chckbxCenterFrame.isSelected()) {
@@ -226,6 +240,9 @@ public class gif2bootGUI extends JFrame {
                 					break;
                 				case 3:
                 					JOptionPane.showMessageDialog(new JFrame(), "I/O error. Do you have sufficient permissions for the filesystem?");
+                					break;
+                				case 4:
+                					JOptionPane.showMessageDialog(new JFrame(), "Please enter a valid resolution.");
                 					break;
                 				default:
                 					//JOptionPane.showMessageDialog(new JFrame(), "Done.");

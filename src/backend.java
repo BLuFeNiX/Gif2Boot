@@ -37,6 +37,10 @@ public class backend {
 
 	public static int createBootZip(File file, final Dimension deviceDimensions, final String options, final JProgressBar progressBar, final JLabel progressLabel, String pwdTemp) {
 		
+		if ((int)deviceDimensions.getWidth() == 0 || (int)deviceDimensions.getHeight() == 0) {
+			return 4;
+		}
+		
 		PWD = pwdTemp;
 		int framerate = 10; //default to initialize with, will change later
 		
