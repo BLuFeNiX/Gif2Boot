@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -7,7 +8,6 @@ import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -165,6 +165,13 @@ public class backend {
 						// resize frame to fit screen
 						images[i].setImage( resizeToScreen(images[i].getImage(), (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight()) );
 						
+						// invert the image colors
+						if (options.contains("negative")) {
+							System.out.println("INVERTING: " + i);
+							images[i].setImage( negative(images[i].getImage()) );
+							System.out.println("DONE INVERTING: " + i);
+						}
+						
 					    try {
 					    	PNGImageEncoder encoder = new PNGImageEncoder(new FileOutputStream("part0/img" + String.format("%04d", i) + ".png"), null);
 							encoder.encode((RenderedImage) images[i].getImage());
@@ -268,6 +275,21 @@ public class backend {
 		graphics2Dtest.dispose();
 		return modifiedImage;
 	}
+	
+	public static BufferedImage negative(BufferedImage bufferedImage) {
+        Color c;
+        for (int x = 0; x < bufferedImage.getWidth(); x++) { //width
+            for (int y = 0; y < bufferedImage.getHeight(); y++) { //height
+                int RGBA = bufferedImage.getRGB(x, y); //gets RGBA data for the specific pixel
+                c = new Color(RGBA, true); //get the color data of the specific pixel
+                c = new Color(Math.abs(c.getRed() - 255), Math.abs(c.getGreen() - 255), Math.abs(c.getBlue() - 255)); //Swaps values
+                //i.e. 255, 255, 255 (white)
+                //becomes 0, 0, 0 (black)                
+                bufferedImage.setRGB(x, y, c.getRGB()); //set the pixel to the altered colors
+            }
+        }
+        return bufferedImage;
+    }
 
 	public static void createDescFile(int width, int height, int framerate){
 		try {
