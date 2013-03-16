@@ -3,7 +3,10 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
@@ -31,6 +34,7 @@ import javax.swing.JMenu;
 public class gif2bootGUI extends JFrame {
 
 	private final String VERSION = "0.5.3";
+	private final static boolean DEBUG_MODE = false;
 	private JPanel createTabPanel;
 	private JPanel contentPane;
 	private JTextField filenameField;
@@ -42,6 +46,14 @@ public class gif2bootGUI extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
+		if (DEBUG_MODE) {
+			try {
+				PrintStream out = new PrintStream(new FileOutputStream("debug.txt"));
+				System.setOut(out);
+			} catch (FileNotFoundException e2) { e2.printStackTrace(); }
+		}
+		
 		
 		try {
 			PWD = URLDecoder.decode(PWD, "UTF-8");
