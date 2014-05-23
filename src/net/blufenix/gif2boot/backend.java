@@ -1,3 +1,4 @@
+package net.blufenix.gif2boot;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -295,7 +296,7 @@ public class backend {
 		try {
 			PrintWriter out = new PrintWriter(new FileWriter("desc.txt"));
 			out.println(width + " " + height + " " + framerate);
-			out.println("p 20 0 part0");
+			out.println("p 0 0 part0");
 			out.close();
 		} catch (IOException e){
 			e.printStackTrace();

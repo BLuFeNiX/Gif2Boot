@@ -1,3 +1,4 @@
+package net.blufenix.gif2boot;
 /**
  * The utillib library.
  * More information is available at http://www.jinchess.com/.

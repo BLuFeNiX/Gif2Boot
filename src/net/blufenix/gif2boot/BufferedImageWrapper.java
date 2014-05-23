@@ -1,3 +1,4 @@
+package net.blufenix.gif2boot;
 import java.awt.image.BufferedImage;
 
 /*

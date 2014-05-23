@@ -1,3 +1,4 @@
+package net.blufenix.gif2boot;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
