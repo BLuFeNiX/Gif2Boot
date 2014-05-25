@@ -36,7 +36,7 @@ public class gif2bootGUI extends JFrame {
 
 	private final String VERSION = "0.5.3";
 	private final static boolean DEBUG_MODE = false;
-	private JPanel createTabPanel;
+	private JPanel containerPanel;
 	private JPanel contentPane;
 	private JTextField filenameField;
 	//private String PWD = new File("").getAbsolutePath();
@@ -78,17 +78,13 @@ public class gif2bootGUI extends JFrame {
 		setTitle("Gif2Boot v" + VERSION);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 535);
-		createTabPanel = new JPanel();
+		containerPanel = new JPanel();
 		//createTabPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//setContentPane(createTabPane);
 		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-
-		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.addTab("Create Boot Animation", null, createTabPanel, null);
 		
 		
 		//MENU BAR
@@ -355,34 +351,34 @@ public class gif2bootGUI extends JFrame {
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		loadPanel.setLayout(gl_loadPanel);
-		GroupLayout gl_createTabPanel = new GroupLayout(createTabPanel);
-		gl_createTabPanel.setHorizontalGroup(
-			gl_createTabPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_createTabPanel.createSequentialGroup()
+		GroupLayout gl_containerPanel = new GroupLayout(containerPanel);
+		gl_containerPanel.setHorizontalGroup(
+			gl_containerPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_containerPanel.createSequentialGroup()
 					.addGap(12)
-					.addGroup(gl_createTabPanel.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl_containerPanel.createParallelGroup(Alignment.LEADING)
 						.addComponent(loadPanel, GroupLayout.DEFAULT_SIZE, 564, Short.MAX_VALUE)
-						.addGroup(gl_createTabPanel.createSequentialGroup()
+						.addGroup(gl_containerPanel.createSequentialGroup()
 							.addComponent(optionsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addGap(6)
 							.addComponent(previewPanel, GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE))
 						.addComponent(createPanel, GroupLayout.DEFAULT_SIZE, 564, Short.MAX_VALUE))
 					.addGap(7))
 		);
-		gl_createTabPanel.setVerticalGroup(
-			gl_createTabPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_createTabPanel.createSequentialGroup()
+		gl_containerPanel.setVerticalGroup(
+			gl_containerPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_containerPanel.createSequentialGroup()
 					.addGap(12)
 					.addComponent(loadPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addGap(6)
-					.addGroup(gl_createTabPanel.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl_containerPanel.createParallelGroup(Alignment.LEADING)
 						.addComponent(optionsPanel, GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
 						.addComponent(previewPanel, GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE))
 					.addGap(6)
 					.addComponent(createPanel, GroupLayout.PREFERRED_SIZE, 65, GroupLayout.PREFERRED_SIZE)
 					.addGap(22))
 		);
-		createTabPanel.setLayout(gl_createTabPanel);
+		containerPanel.setLayout(gl_containerPanel);
 		
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
@@ -393,12 +389,12 @@ public class gif2bootGUI extends JFrame {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(lblDonating_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap())
-				.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
+				.addComponent(containerPanel, GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
-					.addComponent(tabbedPane, GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE)
+					.addComponent(containerPanel, GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblDonating_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)

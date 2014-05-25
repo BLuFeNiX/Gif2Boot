@@ -1,9 +1,6 @@
 package net.blufenix.gif2boot;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
@@ -79,9 +76,9 @@ public class backend {
 		});
 		
 		final String[] filenames = new String[numImages+1]; // These are the files to include in the bootanimation.zip file at the end (+1 for desc.txt)
-		final BufferedImageWrapper[] images = new BufferedImageWrapper[numImages];
+		final BufferedImageManipulator[] images = new BufferedImageManipulator[numImages];
 		for (int i = 0; i < images.length; i++) {
-			images[i] = new BufferedImageWrapper();
+			images[i] = new BufferedImageManipulator();
 		}
 
 		// pre-process images
@@ -149,27 +146,27 @@ public class backend {
 			new Thread( new Runnable() { public void run() {
 				// apply extra options (algorithms) to images, and save them to disk
 				for (int i = 0; i < images.length; i++) {
-					if (images[i].getStatus() == BufferedImageWrapper.NOT_DONE) {
+					if (images[i].getStatus() == Status.NOT_DONE) {
 						//System.out.println("BEGIN" + i);
-						images[i].setStatus(BufferedImageWrapper.PROCESSING);
+						images[i].setStatus(Status.PROCESSING);
 						// check for options
 						if (options.contains("centerFrame")) {
-							images[i].setImage( centerFrame(images[i].getImage(), (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight()) );
+							images[i].cropSidesToMatchAspectRatio((int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight());
 						}
 						else if (options.contains("zoomFrame")) {
-							images[i].setImage( zoomFrame(images[i].getImage(), (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight()) );
+							images[i].CropOrLetterboxToDimensions((int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight());
 						}// OTHERWISE, rotate frame if image is wider than it is high (this way we don't squash it on resize)	
 						else if (images[i].getImage().getWidth() > images[i].getImage().getHeight()) {
-							images[i].setImage( rotate270(images[i].getImage()) );
+							images[i].rotate270();
 						}
 			
 						// resize frame to fit screen
-						images[i].setImage( resizeToScreen(images[i].getImage(), (int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight()) );
+						images[i].resizeToScreen((int)deviceDimensions.getWidth(), (int)deviceDimensions.getHeight());
 						
 						// invert the image colors
 						if (options.contains("negative")) {
 							System.out.println("INVERTING: " + i);
-							images[i].setImage( negative(images[i].getImage()) );
+							images[i].invertColors();
 							System.out.println("DONE INVERTING: " + i);
 						}
 						
@@ -180,7 +177,7 @@ public class backend {
 					    
 					    //add filename to list of files to zip
 					    filenames[i] = "part0/img" + String.format("%04d", i) + ".png";
-					    images[i].setStatus(BufferedImageWrapper.DONE);
+					    images[i].setStatus(Status.DONE);
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
 								progressBar.setValue(progressBar.getValue()+1);
@@ -197,7 +194,7 @@ public class backend {
 		int numDone = 0;
 		while (numDone < images.length) {
 			for (int i = images.length-1; i > -1; i--) {
-				if (images[i].getStatus() == BufferedImageWrapper.DONE) {
+				if (images[i].getStatus() == Status.DONE) {
 					numDone++;
 				}
 				else {
@@ -236,61 +233,7 @@ public class backend {
 		return 0;
 		
 	}
-	
-	
-	private static BufferedImage resizeToScreen(BufferedImage bufferedImage, int resizeWidth, int resizeHeight) {
-		// Create new (blank) image of required (scaled) size
-		BufferedImage scaledImage = new BufferedImage(resizeWidth, resizeHeight, BufferedImage.TYPE_INT_ARGB);
-		// Paint scaled version of image to new image
-		Graphics2D graphics2D = scaledImage.createGraphics();
-		graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		graphics2D.drawImage(bufferedImage, 0, 0, resizeWidth, resizeHeight, null);
-		graphics2D.dispose();
-		return scaledImage;
-	}
 
-	private static BufferedImage centerFrame(BufferedImage bufferedImage, int resizeWidth, int resizeHeight) {
-		double ratio = (double)bufferedImage.getHeight() / (double)resizeHeight;
-		int newWidth =  (int) Math.round(((double)resizeWidth * ratio));
-		int cropTotal = bufferedImage.getWidth() - newWidth;
-		int cropSide = cropTotal / 2;			
-		// Create new (blank) image of required (cropped) size
-		BufferedImage modifiedImage = new BufferedImage(newWidth, bufferedImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		// Paint cropped image at negative coords to cause cropping
-		Graphics2D graphics2Dtest = modifiedImage.createGraphics();
-		graphics2Dtest.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		graphics2Dtest.drawImage(bufferedImage, (cropSide * -1), 0, bufferedImage.getWidth(), bufferedImage.getHeight(), null);
-		graphics2Dtest.dispose();
-		return modifiedImage;
-	}
-	
-	private static BufferedImage zoomFrame(BufferedImage bufferedImage, int frameWidth, int frameHeight) {
-		int offsetHeight = (bufferedImage.getHeight() - frameHeight) / 2;
-		int offsetWidth = (bufferedImage.getWidth() - frameWidth) / 2;
-		// Create new (blank) image of required size
-		BufferedImage modifiedImage = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_INT_ARGB);
-		// Paint cropped image at negative coords to cause cropping
-		Graphics2D graphics2Dtest = modifiedImage.createGraphics();
-		graphics2Dtest.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		graphics2Dtest.drawImage(bufferedImage, (offsetWidth * -1), (offsetHeight * -1), bufferedImage.getWidth(), bufferedImage.getHeight(), null);
-		graphics2Dtest.dispose();
-		return modifiedImage;
-	}
-	
-	public static BufferedImage negative(BufferedImage bufferedImage) {
-        Color c;
-        for (int x = 0; x < bufferedImage.getWidth(); x++) { //width
-            for (int y = 0; y < bufferedImage.getHeight(); y++) { //height
-                int RGBA = bufferedImage.getRGB(x, y); //gets RGBA data for the specific pixel
-                c = new Color(RGBA, true); //get the color data of the specific pixel
-                c = new Color(Math.abs(c.getRed() - 255), Math.abs(c.getGreen() - 255), Math.abs(c.getBlue() - 255)); //Swaps values
-                //i.e. 255, 255, 255 (white)
-                //becomes 0, 0, 0 (black)                
-                bufferedImage.setRGB(x, y, c.getRGB()); //set the pixel to the altered colors
-            }
-        }
-        return bufferedImage;
-    }
 
 	public static void createDescFile(int width, int height, int framerate){
 		try {
@@ -334,31 +277,6 @@ public class backend {
         }
         zos.close();
     }
-
-
-	public static BufferedImage rotate90(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight();
-		BufferedImage newImage = new BufferedImage(height, width, img.getType());
-
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < height; j++)
-				newImage.setRGB(height - 1 - j, i, img.getRGB(i, j));
-
-		return newImage;
-	}
-	
-	public static BufferedImage rotate270(BufferedImage img) {
-		int width = img.getWidth();
-		int height = img.getHeight();
-		BufferedImage newImage = new BufferedImage(height, width, img.getType());
-
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < height; j++)
-				newImage.setRGB(j, width - 1 - i, img.getRGB(i, j));
-
-		return newImage;
-	}
 
 	public static void delete(File file) throws IOException{
 		if(file.isDirectory()){
